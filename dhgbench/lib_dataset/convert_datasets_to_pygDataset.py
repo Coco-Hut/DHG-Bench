@@ -52,7 +52,7 @@ class dataset_Hypergraph(InMemoryDataset):
         
         super(dataset_Hypergraph, self).__init__(osp.join(root, name), transform, pre_transform)
         
-        self.data, self.slices = torch.load(self.processed_paths[0])
+        self.data, self.slices = torch.load(self.processed_paths[0], weights_only=False)
         self.train_percent = self.data.train_percent
 
     @property

@@ -17,3 +17,4 @@ from .phenomnn import PhenomNN
 from .dphgnn import DPHGNN
 from .tfhnn import TFHNN
 from .mlp import MLP,PlainMLP
+from .hypergt import HyperGT

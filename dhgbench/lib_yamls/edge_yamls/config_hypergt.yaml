@@ -1,0 +1,50 @@
+default:
+  HCHA_symdegnorm: true
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+  hidden_channels: 32 
+  num_layers: 2
+  num_heads: 4 
+  nb_random_features: 30
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+
+cora:
+  HCHA_symdegnorm: true
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+  hidden_channels: 32 
+  num_layers: 2
+  num_heads: 4 
+  nb_random_features: 30
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+

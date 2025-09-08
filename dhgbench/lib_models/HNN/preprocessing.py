@@ -14,6 +14,10 @@ from dask.diagnostics import ProgressBar
 from dask import delayed
 import scipy.sparse as sp 
 from lib_models.HNN.utils import symnormalise,ssm2tst,row_normalize,create_coo_from_edge_index
+from typing import Optional
+from tqdm import tqdm
+import os 
+from torch_geometric.utils import remove_self_loops
 
 def algo_preprocessing(data,args):
 
@@ -33,6 +37,8 @@ def algo_preprocessing(data,args):
         data = ehnn_preprocessing(data,args)
     elif args.method in ['PlainUnigencoder']:
         data =uni_expansion(data,args)
+    elif args.method == 'HyperGT':
+        data = hypergt_preprocessing(data,args)
     else:
         pass
     
@@ -1038,4 +1044,71 @@ def ConstructHSparse(data):
     num_hyperedges = np.max(edge_index[1]) - np.min(edge_index[1]) + 1
     assert np.min(edge_index[1]) == 0 and np.max(edge_index[1]) == num_hyperedges - 1
     data.hyperedge_index = edge_index
+    return data
+
+#---------------------- HyperGT preprocessing utils -------------------------
+
+def hypergt_preprocessing(data, args, add_reverse=False, add_token_loops=True):
+    """
+      output: 
+      - data.num_tokens = n + m
+      - data.H:    [n, m] (float32, device)
+      - data.adjs: [edge_index_token] (long, device)
+      - data.x:    [n+m, d]
+    """
+    dev = torch.device(args.device)
+
+    ei = data.hyperedge_index.to(torch.long).to(dev)   # [2, E]
+    v  = ei[0]                                         # node id
+    e0 = ei[1]                                         # hyperedge id
+    n  = int(getattr(data, 'num_nodes', data.x.size(0)))
+
+    e_min = int(e0.min().item())
+    e     = e0 - e_min                                 # 0..m-1
+    m     = int(e.max().item()) + 1
+    N     = n + m
+
+    # ---- 2) construct H: [n, m] (float32, device) ----
+    vals = torch.ones(e.size(0), dtype=torch.float32, device=dev)
+    H = torch.sparse_coo_tensor(
+        indices=torch.stack([v, e], dim=0),            # [2, E]
+        values=vals,
+        size=(n, m),
+        dtype=torch.float32,
+        device=dev
+    ).coalesce()
+
+    # ---- 3) construct token adjs[0]（V->[n..n+m-1]）----
+    e_off = e + n                                   
+    edge_v2e = torch.stack([v, e_off], dim=0)          # [2, E]
+    edge_v2e, _ = remove_self_loops(edge_v2e)
+
+    if add_reverse:
+        edge_e2v = torch.stack([e_off, v], dim=0)      # [2, E]
+        edge_index = torch.cat([edge_v2e, edge_e2v], dim=1)  # [2, 2E]
+    else:
+        edge_index = edge_v2e
+
+    if add_token_loops:
+        loops = torch.arange(N, device=dev, dtype=torch.long)
+        loop_edge = torch.stack([loops, loops], dim=0)       # [2, N]
+        edge_index = torch.cat([edge_index, loop_edge], dim=1)
+
+    edge_index = edge_index.to(torch.long).to(dev)
+
+    # ---- 4) x -> [n, m]
+    x = data.x
+    if x.device != dev:
+        x = x.to(dev)
+    if x.size(0) == n:
+        pad = torch.zeros((m, x.size(1)), dtype=x.dtype, device=dev)
+        x = torch.cat([x, pad], dim=0)                       # [n+m, F]
+    elif x.size(0) != N:
+        raise ValueError(f"data.x.shape[0]={x.size(0)} not match n(={n})/m(={m})")
+
+    data.num_tokens = N
+    data.H = H
+    data.adjs = [edge_index]
+    data.x = x
+
     return data
