@@ -8,7 +8,7 @@
   <a href="#overview-of-the-benchmark">Overview of the Benchmark</a> •
   <a href="#installation">Installation</a> •
   <a href="#quick-start">Quick Start</a> •
-  <a href="#references">Algorithm References</a> •
+  <a href="#references">Algorithm References</a>
 </p>
 
 # DHG-Bench
