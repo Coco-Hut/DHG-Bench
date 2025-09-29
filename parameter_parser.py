@@ -89,8 +89,7 @@ def parameter_parser():
     '''
     parser.add_argument('--train_prop', type=float, default=0.5)
     parser.add_argument('--valid_prop', type=float, default=0.25)
-
-    parser.add_argument('--dname', default='cora',choices=['cora','citeseer','pubmed',
+    parser.add_argument('--dname', default='pubmed',choices=['cora','citeseer','pubmed',
                                                             'coauthor_cora','coauthor_dblp',
                                                             '20newsW100', 'ModelNet40', 'zoo','NTU2012', 'Mushroom',
                                                             'yelp','walmart-trips-100','house-committees-100',
@@ -102,28 +101,23 @@ def parameter_parser():
                                                             "IMDB_wri_form", "IMDB_wri_genre",
                                                             "stream_player","twitter_friend"])
     
-    parser.add_argument('--task_type',default='node_cls',choices=['node_cls','edge_pred','hg_cls'])
-    parser.add_argument('--is_default',default=False, help="use default params")
+    parser.add_argument('--task_type',default='hg_cls',choices=['node_cls','edge_pred','hg_cls'])
+    parser.add_argument('--is_default',default=False)
     parser.add_argument('--use_processed', default=True)
-    parser.add_argument('--method', default='HGNN',choices=['HGNN','HyperGCN','HCHA','HNHN',
-                                                            'AllSetformer','AllDeepSets','UniGIN',
-                                                            'LEGCN','HyperND','UniGCNII','EDHNN',
-                                                            'PlainUnigencoder','HJRL','SheafHyperGNN','EHNN',
-                                                            'TMPHN','PhenomNNS','PhenomNN',
-                                                            'DPHGNN','TFHNN','MLP']) 
+    parser.add_argument('--method', default='MLP') 
     
     parser.add_argument('--device', default='cuda:0')
     parser.add_argument('--num_seeds', type=int, default=5)
-    parser.add_argument('--epochs', default=5, type=int) 
+    parser.add_argument('--epochs', default=5, type=int)
     parser.add_argument('--dropout', default=0.5, type=float)
     parser.add_argument('--lr', default=0.001, type=float) # []
     parser.add_argument('--wd', default=0.0, type=float)
     parser.add_argument('--clip_grad',default=False,type=bool)
     parser.add_argument('--clip_thresh',default=5.0,type=float)
-    parser.add_argument('--num_splits',type=int,default=10,help='number of splits for self-supervised learning')
+    parser.add_argument('--num_splits',type=int,default=10)
     parser.add_argument('--mem_verbose',default=True)
     parser.add_argument('--mem_display_step',default=100)
-    parser.add_argument('--display_step', type=int, default=2)
+    parser.add_argument('--display_step', type=int, default=10)
     parser.add_argument('--eval_verbose',default=True)
     
     parser.add_argument('--embedding_mode',default=False,type=bool) 
@@ -133,10 +127,9 @@ def parameter_parser():
     parser.add_argument('--add_self_loop', action='store_false')
     parser.add_argument('--exclude_self', action='store_true')
     
-    # Hyperedge Prediction
-    parser.add_argument('--edge_save_dir', default=f'./lib_edge_splits/')  
-    parser.add_argument('--edge_batch_size', default=512) 
-    parser.add_argument('--e_embed_hidden',default=64) 
+    parser.add_argument('--edge_save_dir', action='store_true',default=f'./lib_edge_splits/') 
+    parser.add_argument('--edge_batch_size', action='store_true',default=512)
+    parser.add_argument('--e_embed_hidden',default=64)
     parser.add_argument('--e_embed_layer',default=2) 
     parser.add_argument('--e_embed_dropout',default=0.2) 
     parser.add_argument('--e_embed_norm',default='ln')
@@ -144,7 +137,6 @@ def parameter_parser():
     parser.add_argument('--ns_method',default='mixed',choices=['mns','sns','cns','mixed']) 
     parser.add_argument('--edge_aggr',default='group',choices=['group','single']) 
     
-    # Hypergraph Classification
     parser.add_argument('--hg_batch_size',default=256) 
     parser.add_argument('--pooling',default='mean')
     parser.add_argument('--g_embed_hidden',default=128) 
@@ -152,16 +144,15 @@ def parameter_parser():
     parser.add_argument('--g_embed_dropout',default=0.2) 
     parser.add_argument('--g_embed_norm',default='ln') 
     parser.add_argument('--use_weighted_loss',default=False)
-    parser.add_argument('--early_stop',default=True)
+    parser.add_argument('--early_stop',default=True) 
 
-    # Robustness
-    parser.add_argument('--is_perturbed',default=False) 
-    parser.add_argument('--pert_mode',default='flip_label',choices=['spar_feat','noise_feat',
+    parser.add_argument('--is_perturbed',default=True) 
+    parser.add_argument('--is_poison',default=True) 
+    parser.add_argument('--pert_mode',default='drop_incidence',choices=['spar_feat','noise_feat',
                                                                     'drop_incidence','add_incidence',
                                                                     'spar_label','flip_label'])
     parser.add_argument('--pert_p',default=0.25)
 
-    # Choose std for synthetic feature noise
     parser.add_argument('--feature_noise', default='0.6', type=str)
     
     parser.set_defaults(add_self_loop=False)

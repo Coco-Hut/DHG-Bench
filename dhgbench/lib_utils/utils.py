@@ -27,9 +27,9 @@ def result_printer(metrics,name):
     metrics_mean,metrics_std = mean_std_metrics(metrics)
     
     if metrics_dim == 1:
-        print(f'{name}: {metrics_mean[0]:.2f}+-{metrics_std[0]:.2f}')
+        print(f'{name}: {metrics_mean[0]:.4f}+-{metrics_std[0]:.2f}')
     else:
-        print(f'train_{name}: {metrics_mean[0]:.2f}+-{metrics_std[0]:.2f}, val_{name}: {metrics_mean[1]:.2f}+-{metrics_std[1]:.2f}, test_{name}: {metrics_mean[2]:.2f}+-{metrics_std[2]:.2f}')
+        print(f'train_{name}: {metrics_mean[0]:.4f}+-{metrics_std[0]:.2f}, val_{name}: {metrics_mean[1]:.4f}+-{metrics_std[1]:.2f}, test_{name}: {metrics_mean[2]:.4f}+-{metrics_std[2]:.2f}')
 
 def fix_seed(seed):
     torch.manual_seed(seed)

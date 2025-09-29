@@ -45,7 +45,7 @@ class HyperGT(nn.Module):
         self.bns = nn.ModuleList([nn.LayerNorm(args.hidden_channels)])
         self.convs = nn.ModuleList()
 
-        for _ in range(args.num_layers):
+        for _ in range(args.All_num_layers):
             self.convs.append(
                 NodeFormerConv(
                     args.hidden_channels, args.hidden_channels,
@@ -62,7 +62,7 @@ class HyperGT(nn.Module):
             self.bns.append(nn.LayerNorm(args.hidden_channels))
 
         if args.use_jk:
-            self.fcs.append(nn.Linear(args.hidden_channels * args.num_layers + args.hidden_channels, out_channels))
+            self.fcs.append(nn.Linear(args.hidden_channels * args.All_num_layers + args.hidden_channels, out_channels))
         else:
             self.fcs.append(nn.Linear(args.hidden_channels, out_channels))
 
@@ -156,10 +156,11 @@ class HyperGT(nn.Module):
         
         num_nodes = H.size(0)
         x_out = x_out[:num_nodes]
+        
         if self.use_edge_loss:
             return x_out, link_loss_
         else:
-            return x_out
+            return x_out, None
 
 
 

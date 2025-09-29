@@ -21,12 +21,23 @@ if __name__ == '__main__':
 
         if args.is_perturbed:
             if isinstance(args.pert_p,str):
-                args.pert_p = eval(args.pert_p) 
+                args.pert_p = eval(args.pert_p)
             if args.pert_mode not in ['spar_label','flip_label']:
                 print('Robustness Perturbation for Structure and Feature')
-                data = perturbation(data,mode=args.pert_mode,p=args.pert_p,masks=None)
+                if args.is_poison:
+                    data = perturbation(data,mode=args.pert_mode,p=args.pert_p,masks=None)
+                else:
+                    evasion_data = perturbation(data,mode=args.pert_mode,p=args.pert_p,masks=None)
+            else:
+                print('Robustness Perturbation for Supervision Signal')
+                if args.is_poison == False:
+                    raise ValueError('Label attack is expected to be the poison attack!')
 
         data = algo_preprocessing(data,args)
+
+        if args.is_perturbed and not args.is_poison:
+            evasion_data = algo_preprocessing(evasion_data,args)
+            data.evasion_data = evasion_data 
     
     agent = ExpAgent(args)
     agent.running(args.task_type,data)

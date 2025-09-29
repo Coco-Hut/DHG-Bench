@@ -10,7 +10,7 @@ def perturbation(data,mode,p,masks=None):
         pt_hyperedge_index = add_incidence(data.hyperedge_index,p)
         perturbed_data.hyperedge_index = pt_hyperedge_index
     elif mode == 'drop_incidence':
-        pt_hyperedge_index = drop_incidence(data.hyperedge_index,p)
+        pt_hyperedge_index = drop_incidence(data.hyperedge_index,p,data.num_nodes,data.num_hyperedges)
         perturbed_data.hyperedge_index = pt_hyperedge_index
     elif mode == 'spar_feat':
         pt_feat = drop_features(data.x,p)
@@ -37,18 +37,17 @@ def drop_features(x: Tensor, p: float):
     x[:, drop_mask] = 0
     return x
 
-def add_gaussian_noise(x: Tensor, p: float, mean: float = 0.0, std: float = 0.1):
+def add_gaussian_noise(x: Tensor, lam: float):
 
-    noise_mask = torch.empty((x.size(1),), dtype=torch.float32, device=x.device).uniform_(0, 1) < p
-    noise = torch.randn_like(x) * std + mean  
-    x = x.clone()
-    x[:, noise_mask] += noise[:, noise_mask]  
-    return x
+    r = x.max(dim=1, keepdim=True).values.mean()
+    noise = torch.randn_like(x) * lam * r
+
+    return x+noise
 
 def filter_incidence(row: Tensor, col: Tensor, hyperedge_attr, mask: Tensor):
     return row[mask], col[mask], None if hyperedge_attr is None else hyperedge_attr[mask]
 
-def drop_incidence(hyperedge_index: Tensor, p: float = 0.2):
+def drop_incidence(hyperedge_index: Tensor, p: float = 0.2, num_nodes: int = 0, num_edges: int = 0) -> Tensor:
     if p == 0.0:
         return hyperedge_index
     
@@ -57,6 +56,11 @@ def drop_incidence(hyperedge_index: Tensor, p: float = 0.2):
     
     row, col, _ = filter_incidence(row, col, None, mask)
     hyperedge_index = torch.stack([row, col], dim=0)
+
+    # padding operation
+    padding_edge = torch.tensor([[num_nodes-1], [num_edges-1]],device=hyperedge_index.device)
+    hyperedge_index = torch.cat([hyperedge_index, padding_edge], dim=1)
+
     return hyperedge_index
 
 def add_incidence(hyperedge_index: Tensor, p: float = 0.2):

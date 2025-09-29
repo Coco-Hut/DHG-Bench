@@ -7,7 +7,8 @@ from collections import defaultdict
 from lib_utils.utils import fix_seed,result_printer,mean_std_metrics
 from lib_utils.train_agent import Trainer
 from lib_utils.eval_agent import Evaluator
-from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,HyperND,EquivSetGNN,PlainUnigencoder,HJRL,SheafHyperGNN,EHNN,TMPHN,PhenomNN,PhenomNNS,DPHGNN,TFHNN,PlainMLP,HyperGT
+from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,HyperND,EquivSetGNN,\
+                            PlainUnigencoder,HJRL,SheafHyperGNN,EHNN,TMPHN,PhenomNN,PhenomNNS,DPHGNN,TFHNN,PlainMLP,HyperGT,CEGCN,CEGAT
 
 from lib_dataset.data_perturbation import perturbation
 from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges
@@ -80,15 +81,18 @@ class ExpAgent:
         
         metrics_dict=defaultdict(list)
 
+        # 2. 多轮随机数种子实验
         for seed in range(self.args.num_seeds):
             
+            # 1. 固定随机数种子
             fix_seed(seed) 
             
+            # 2. 节点分类数据集随机划分
             masks=data.generate_random_split(train_ratio=self.args.train_prop,val_ratio=self.args.valid_prop,seed=seed)
 
+            # 2.1 标签鲁棒性测试
             if self.args.is_perturbed:
                 if self.args.pert_mode in ['spar_label','flip_label']:
-                    print('Robustness Perturbation for Supervision Signal')
                     if self.args.pert_mode == 'spar_label':
                         masks = perturbation(data,mode=self.args.pert_mode,p=self.args.pert_p,masks=masks)
                     elif self.args.pert_mode == 'flip_label':
@@ -96,35 +100,44 @@ class ExpAgent:
                     else:
                         raise ValueError('Unimplemented perturbation mode for label robustness')
 
+            # 3. 初始化模型
             model = parse_model(self.args,data)
             if self.args.method == 'TMPHN':
                 pass
             else:
                 model = model.to(self.args.device)
-                    
+
+            # 4. 模型训练[调用trainer类]
             self.trainer.training(model,data,self.args,seed_split=masks,task_type='node_cls')
             
             self.train_times.append(self.trainer.train_time)
 
+            # Evasion Attack
+            if self.args.is_perturbed and not self.args.is_poison:
+                test_data = data.evasion_data
+            else:
+                test_data = data
+
             if self.args.eval_verbose:
                 print(f'------------------------------[Seed {seed}]-----------------------------------')
-                result=self.evaluator.evaluate(model,data,seed_split=masks,task_type='node_cls',verbose=True)
+                # 5. 单一轮次模型评估[调用evaluator类]
+                result=self.evaluator.evaluate(model,test_data,seed_split=masks,task_type='node_cls',verbose=True)
                 print(f'------------------------------------------------------------------------------')
             else:
-                result=self.evaluator.evaluate(model,data,seed_split=masks,task_type='node_cls',verbose=False)
+                result=self.evaluator.evaluate(model,test_data,seed_split=masks,task_type='node_cls',verbose=False)
             
             for m in result:
                 metrics_dict[m].append(result[m])
             
         print(f'---------------------------------[Final]--------------------------------------')
-        self.test_dict = defaultdict(list) 
+        # 多轮随机数取均值和标准差
+        self.test_dict = defaultdict(list) # 记录每个指标在测试集上的效果
         for m in metrics_dict:
             result_printer(metrics_dict[m],m)
             metrics_mean, metrics_std = mean_std_metrics(metrics_dict[m])
             self.test_dict[m].extend([metrics_mean[-1],metrics_std[-1]])
         print(f'Avg Training Time: {np.mean(self.train_times):2f}')
         print(f'------------------------------------------------------------------------------')
-
 
     def hg_cls_train_eval(self,data):
         
@@ -233,6 +246,10 @@ def parse_model(args, data):
         model = PlainMLP(data.num_features,num_targets,args)
     elif args.method == 'HyperGT':
         model = HyperGT(data.num_features,num_targets,args)
+    elif args.method == 'CEGCN':
+        model = CEGCN(data.num_features,num_targets,args)
+    elif args.method == 'CEGAT':
+        model = CEGAT(data.num_features,num_targets,args)
     else:
         raise ValueError('Unimplemented model')
 

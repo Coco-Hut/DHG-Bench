@@ -8,24 +8,24 @@
   <a href="#overview-of-the-benchmark">Overview of the Benchmark</a> •
   <a href="#installation">Installation</a> •
   <a href="#quick-start">Quick Start</a> •
-  <a href="#references">Algorithm References</a>
+  <a href="#references">Algorithm References</a> •
 </p>
 
 # DHG-Bench
 
-DHG-Bench is an open and unified pipline for Deep Hypergraph Learning (DHGL) based on [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://www.pyg.org/). We embark on **16** state-of-the-art hypergraph neural network (HNN) algorithms in node-level, edge-level, and graph-level tasks and analyze their performance in **20** distinct hypergraph datasets.
+DHG-Bench is an open and unified pipline for Deep Hypergraph Learning (DHGL) based on [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://www.pyg.org/). We embark on **17** state-of-the-art hypergraph neural network (HNN) algorithms in node-level, edge-level, and graph-level tasks and analyze their performance in **22** distinct hypergraph datasets.
 
 ## <span id="overview-of-the-benchmark">📔 Overview of the Benchmark</span>
 
 <div align="center">
-  <img src="resources/overview.png" alt="Overview of the DHG-Bench" width=100%/>
+  <img src="resources/overview.jpg" alt="Overview of the DHG-Bench" width=100%/>
   <p align="center"><em>Figure 1: Pipeline of the DHG-Bench.</em></p>
 </div>
 
 DHG-Bench provides a fair and comprehensive platform to evaluate existing HNN algorithms and facilitate future DHGL research. Our main contributions are summarized as follows:
 
-* DHG-Bench enables a fair and unified comparison among 16 state-of-the-art HNN algorithms
-and 20 diverse hypergraph datasets covering node-level, edge-level, and graph-level tasks. To the
+* DHG-Bench enables a fair and unified comparison among 17 state-of-the-art HNN algorithms
+and 22 diverse hypergraph datasets covering node-level, edge-level, and graph-level tasks. To the
 best of our knowledge, this is the first comprehensive benchmark for deep hypergraph learning.
 
 * We conduct a systematic analysis of HNN methods from various dimensions, including effec-
@@ -128,4 +128,5 @@ Note that The **is_default** parameter indicates whether to use the model’s de
 |13|HJRL|[Hypergraph Joint Representation Learning for Hypervertices and Hyperedges via Cross Expansion](https://openreview.net/forum?id=fxLaL5s6UH)|AAAI 2024|
 |14| DPHGNN |[DPHGNN: A Dual Perspective Hypergraph Neural Networks](https://arxiv.org/pdf/2405.16616)|KDD 2024| 
 |15|T-HyperGNNs |[T-HyperGNNs: Hypergraph Neural Networks via Tensor Representations](https://ieeexplore.ieee.org/document/10462516)| TNNLS 2024|
-|16|TF-HNN |[Training-Free Message Passing for Learning on Hypergraphs](https://openreview.net/pdf?id=4AuyYxt7A2)| ICLR 2025|
+|16|HyperGT|[Hypergraph Transformer for Semi-Supervised Classification](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10446248)|ICASSP 2024|
+|17|TF-HNN |[Training-Free Message Passing for Learning on Hypergraphs](https://openreview.net/pdf?id=4AuyYxt7A2)| ICLR 2025|

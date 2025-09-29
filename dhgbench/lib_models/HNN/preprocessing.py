@@ -39,6 +39,8 @@ def algo_preprocessing(data,args):
         data =uni_expansion(data,args)
     elif args.method == 'HyperGT':
         data = hypergt_preprocessing(data,args)
+    elif args.method in ['CEGCN','CEGAT']:
+        data = cegnn_preprocessing(data,args)
     else:
         pass
     
@@ -130,6 +132,12 @@ def star_expansion(data, num_nodes=None, num_hyperedges=None):
     v_mask = torch.cat([torch.ones(num_nodes, dtype=torch.bool), torch.zeros(num_hyperedges, dtype=torch.bool)])
 
     return edge_index, v_mask
+
+# ------------- CEGNN preprocessing utils ----------------------
+
+def cegnn_preprocessing(data,args):
+    data.clique_edge_index = clique_expansion(data).to(args.device)
+    return data
 
 # ------------- DPHGNN preprocessing utils ----------------------
 
