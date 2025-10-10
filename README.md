@@ -9,6 +9,7 @@
   <a href="#installation">Installation</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#references">Algorithm References</a> •
+  <a href="#citation">Citation</a> 
 </p>
 
 # DHG-Bench
@@ -130,3 +131,17 @@ Note that The **is_default** parameter indicates whether to use the model’s de
 |15|T-HyperGNNs |[T-HyperGNNs: Hypergraph Neural Networks via Tensor Representations](https://ieeexplore.ieee.org/document/10462516)| TNNLS 2024|
 |16|HyperGT|[Hypergraph Transformer for Semi-Supervised Classification](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10446248)|ICASSP 2024|
 |17|TF-HNN |[Training-Free Message Passing for Learning on Hypergraphs](https://openreview.net/pdf?id=4AuyYxt7A2)| ICLR 2025|
+
+## <span id="citation">📖 Citation</span>
+Our paper on this benchmark has be released at: http://arxiv.org/abs/2508.12244
+
+If you use our benchmark in your works, we would appreciate citations to the paper:
+
+```bibtex
+@article{li2025dhg,
+  title={DHG-Bench: A Comprehensive Benchmark for Deep Hypergraph Learning},
+  author={Li, Fan and Wang, Xiaoyang and Zhang, Wenjie and Zhang, Ying and Lin, Xuemin},
+  journal={arXiv preprint arXiv:2508.12244},
+  year={2025}
+}
+```
