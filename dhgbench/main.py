@@ -1,6 +1,3 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent / 'dhgbench'))
 from lib_utils.exp_agent import ExpAgent
 from lib_models.HNN.preprocessing import algo_preprocessing
 from lib_dataset.data_base import HyperDataset
@@ -12,7 +9,7 @@ if __name__ == '__main__':
 
     args = parameter_parser() 
     args = method_config(args) 
-    args = set_task_args(args) 
+    args = set_task_args(args)
 
     data=HyperDataset(args) 
 
