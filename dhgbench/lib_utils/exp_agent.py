@@ -11,7 +11,7 @@ from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,Hyper
                             PlainUnigencoder,HJRL,SheafHyperGNN,EHNN,TMPHN,PhenomNN,PhenomNNS,DPHGNN,TFHNN,PlainMLP,HyperGT,CEGCN,CEGAT
 
 from lib_dataset.data_perturbation import perturbation
-from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges
+from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges,generate_ind_split_hyperedges
 from lib_dataset.hg_loaders import generate_split_hypergraphs,generate_hg_loaders
 from lib_utils.aggregator import EdgePredictor,MeanAggregator,MaxminAggregator,MaxAggregator,HyperGPredictor
 from lib_utils.metrics import aggr_metrics,avg_result_printer_edge
@@ -27,7 +27,7 @@ class ExpAgent:
         self.trainer=Trainer(args)
         self.evaluator=Evaluator(args)
         self.train_times = []
-    
+
     def edge_pred_train_eval(self,data):
         
         metrics_dict = {'train':defaultdict(list),'val':defaultdict(list),'test':defaultdict(list)}
@@ -36,13 +36,27 @@ class ExpAgent:
             
             fix_seed(seed) 
             
-            file_path = f"{self.args.edge_save_dir}{self.args.dname}/split_{seed}.pt"
+            dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}/{self.args.dname}/"
             
-            if not os.path.exists(file_path):
-                generate_split_hyperedges(data,self.args,seed)
+            if self.args.edge_split_mode == 'ind':
+
+                file_path = dir_path+f"split_{seed}.pt"
+                if not os.path.exists(file_path):
+                    os.makedirs(dir_path, exist_ok=True)
+                    generate_ind_split_hyperedges(data,self.args,seed)
+
+            elif self.args.edge_split_mode == 'trand':
+                
+                file_path = dir_path+f"split_{seed}.pt"
+                if not os.path.exists(file_path):
+                    os.makedirs(dir_path, exist_ok=True)
+                    generate_split_hyperedges(data,self.args,seed)
+
+            else:
+
+                raise NotImplementedError
                 
             data_dict = torch.load(file_path, weights_only=False)
-            
             batch_loaders = generate_edge_loaders(data_dict,self.args)
             
             self.args.embedding_mode = True 
@@ -61,7 +75,6 @@ class ExpAgent:
             else:
                 model = model.to(self.args.device)
             
-
             model = self.trainer.training(model,data,self.args,seed_split=batch_loaders,task_type='edge_pred')
 
             if self.args.eval_verbose:
@@ -81,16 +94,12 @@ class ExpAgent:
         
         metrics_dict=defaultdict(list)
 
-        # 2. 多轮随机数种子实验
         for seed in range(self.args.num_seeds):
             
-            # 1. 固定随机数种子
             fix_seed(seed) 
             
-            # 2. 节点分类数据集随机划分
             masks=data.generate_random_split(train_ratio=self.args.train_prop,val_ratio=self.args.valid_prop,seed=seed)
 
-            # 2.1 标签鲁棒性测试
             if self.args.is_perturbed:
                 if self.args.pert_mode in ['spar_label','flip_label']:
                     if self.args.pert_mode == 'spar_label':
@@ -100,14 +109,12 @@ class ExpAgent:
                     else:
                         raise ValueError('Unimplemented perturbation mode for label robustness')
 
-            # 3. 初始化模型
             model = parse_model(self.args,data)
             if self.args.method == 'TMPHN':
                 pass
             else:
                 model = model.to(self.args.device)
 
-            # 4. 模型训练[调用trainer类]
             self.trainer.training(model,data,self.args,seed_split=masks,task_type='node_cls')
             
             self.train_times.append(self.trainer.train_time)
@@ -120,7 +127,6 @@ class ExpAgent:
 
             if self.args.eval_verbose:
                 print(f'------------------------------[Seed {seed}]-----------------------------------')
-                # 5. 单一轮次模型评估[调用evaluator类]
                 result=self.evaluator.evaluate(model,test_data,seed_split=masks,task_type='node_cls',verbose=True)
                 print(f'------------------------------------------------------------------------------')
             else:
@@ -130,8 +136,7 @@ class ExpAgent:
                 metrics_dict[m].append(result[m])
             
         print(f'---------------------------------[Final]--------------------------------------')
-        # 多轮随机数取均值和标准差
-        self.test_dict = defaultdict(list) # 记录每个指标在测试集上的效果
+        self.test_dict = defaultdict(list) 
         for m in metrics_dict:
             result_printer(metrics_dict[m],m)
             metrics_mean, metrics_std = mean_std_metrics(metrics_dict[m])

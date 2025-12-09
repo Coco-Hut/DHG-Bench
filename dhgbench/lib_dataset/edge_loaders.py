@@ -5,6 +5,79 @@ import numpy as np
 from lib_utils.utils import fix_seed
 from lib_dataset.edge_sampler import *
 
+import torch
+import numpy as np
+from collections import defaultdict
+
+def generate_ind_split_hyperedges(data, args, seed):
+    """
+    hyperedges: list[frozenset]
+    ratio: train/val/test node ratio
+    """
+
+    hyperedge_index = data.hyperedge_index.to('cpu')
+
+    hyperedges = defaultdict(set)
+
+    for node, edge in zip(*hyperedge_index.tolist()):
+        hyperedges[edge].add(node)
+
+    hyperedges = [frozenset(nodes) for nodes in hyperedges.values()]
+
+    ratio = (args.train_prop, args.valid_prop, 1 - args.train_prop - args.valid_prop)
+
+    seed_base = 42  
+    fix_seed(seed_base+seed) 
+
+    all_nodes = set()
+    for e in hyperedges:
+        all_nodes |= e
+    all_nodes = list(all_nodes)
+    np.random.shuffle(all_nodes)
+
+    N = len(all_nodes)
+    r1, r2, r3 = ratio
+
+    T1 = int(N * r1)
+    T2 = int(N * (r1 + r2))
+
+    train_nodes = set(all_nodes[:T1])
+    valid_nodes = set(all_nodes[T1:T2])
+    test_nodes  = set(all_nodes[T2:])
+
+    GP_train = []
+    GP_valid = []
+    GP_test  = []
+
+    for e in hyperedges:
+        if e.issubset(train_nodes):
+            GP_train.append(e)
+        elif e.issubset(valid_nodes):
+            GP_valid.append(e)
+        elif e.issubset(test_nodes):
+            GP_test.append(e)
+
+    train_size, valid_size, test_size = len(GP_train), len(GP_valid), len(GP_test)
+
+    print(f'train_size: {train_size}, valid_size: {valid_size}, test_size: {test_size}')
+
+    train_mns, train_sns, train_cns = neg_generator(GP_train, train_size)
+    valid_mns, valid_sns, valid_cns = neg_generator(GP_valid, valid_size)
+    test_mns, test_sns, test_cns = neg_generator(GP_test, test_size)
+
+    # positive samples
+    ground_train_data = []
+    ground_valid_data = []
+    train_only_data = [list(edge) for edge in GP_train]
+    valid_only_data = [list(edge) for edge in GP_valid]
+    test_data = [list(edge) for edge in GP_test]
+
+    torch.save({'ground_train': ground_train_data, 'ground_valid': ground_valid_data, \
+    'train_only_pos': train_only_data, 'train_mns': train_mns, 'train_sns' : train_sns, 'train_cns' : train_cns,\
+    'valid_only_pos': valid_only_data, 'valid_mns': valid_mns, 'valid_sns' : valid_sns, 'valid_cns' : valid_cns, \
+    'test_pos': test_data, 'test_mns': test_mns, 'test_sns' : test_sns, 'test_cns' : test_cns},
+    f'./lib_edge_splits/{args.edge_split_mode}/{args.dname}/split_{seed}.pt')
+
 def generate_split_hyperedges(data,args,seed):
 
     hyperedge_index = data.hyperedge_index.to('cpu')
@@ -85,7 +158,7 @@ def generate_split_hyperedges(data,args,seed):
         'train_only_pos': train_only_data, 'train_mns': train_mns, 'train_sns' : train_sns, 'train_cns' : train_cns,\
         'valid_only_pos': valid_only_data, 'valid_mns': valid_mns, 'valid_sns' : valid_sns, 'valid_cns' : valid_cns, \
         'test_pos': test_data, 'test_mns': test_mns, 'test_sns' : test_sns, 'test_cns' : test_cns},
-        f'./lib_edge_splits/{args.dname}/split_{seed}.pt')
+        f'./lib_edge_splits/{args.edge_split_mode}/{args.dname}/split_{seed}.pt')
 
 def generate_edge_loaders(data_dict, args):
 

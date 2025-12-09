@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / 'dhgbench'))
 from lib_utils.exp_agent import ExpAgent
 from lib_models.HNN.preprocessing import algo_preprocessing
 from lib_dataset.data_base import HyperDataset
@@ -25,8 +28,10 @@ if __name__ == '__main__':
             if args.pert_mode not in ['spar_label','flip_label']:
                 print('Robustness Perturbation for Structure and Feature')
                 if args.is_poison:
+                    print('Performing Poison Attack!')
                     data = perturbation(data,mode=args.pert_mode,p=args.pert_p,masks=None)
                 else:
+                    print('Performing Evasion Attack!')
                     evasion_data = perturbation(data,mode=args.pert_mode,p=args.pert_p,masks=None)
             else:
                 print('Robustness Perturbation for Supervision Signal')
@@ -37,7 +42,7 @@ if __name__ == '__main__':
 
         if args.is_perturbed and not args.is_poison:
             evasion_data = algo_preprocessing(evasion_data,args)
-            data.evasion_data = evasion_data 
+            data.evasion_data = evasion_data # store evasion data
     
     agent = ExpAgent(args)
     agent.running(args.task_type,data)

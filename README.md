@@ -2,6 +2,10 @@
 <img src="resources/logo.png" width="100%" class="center" alt="logo"/>
 </p>
 
+<p align="center">
+⭐️ If you find <strong>DHG-Bench</strong> useful, please consider giving us a star — your support helps us grow! ⭐️
+</p>
+
 ------
 
 <p align="center">
@@ -67,9 +71,13 @@ DHG-Bench
   │   ├── trad_data
   |   └── ...
   └── dhgbench
-  └── main.py
-  └── parameter_parser.py
-   ```
+  │   ├── main.py
+  │   ├── parameter_parser.py
+  │   ├── lib_dataset
+  │   ├── lib_models
+  │   ├── lib_utils
+  └── └── ...
+```
 
 **Required Dependencies:**
 
@@ -85,6 +93,7 @@ DHG-Bench
 * deeprobust==0.2.11
 * ipdb==0.13.13
 * numpy==1.24.3
+* dask==2024.8.0
 
 ## <span id="quick-start">🚀 Quick Start</span>
 
