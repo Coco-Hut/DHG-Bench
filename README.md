@@ -16,7 +16,7 @@
   <a href="#citation">Citation</a> 
 </p>
 
-# DHG-Bench
+# DHG-Bench: A Comprehensive Benchmark for Deep Hypergraph Learning (ICLR 2026)
 
 DHG-Bench is an open and unified pipline for Deep Hypergraph Learning (DHGL) based on [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://www.pyg.org/). We embark on **17** state-of-the-art hypergraph neural network (HNN) algorithms in node-level, edge-level, and graph-level tasks and analyze their performance in **22** distinct hypergraph datasets.
 
@@ -142,7 +142,7 @@ Note that The **is_default** parameter indicates whether to use the model’s de
 |17|TF-HNN |[Training-Free Message Passing for Learning on Hypergraphs](https://openreview.net/pdf?id=4AuyYxt7A2)| ICLR 2025|
 
 ## <span id="citation">📖 Citation</span>
-Our paper on this benchmark has be released at: http://arxiv.org/abs/2508.12244
+The latest version of our paper has be released at: https://openreview.net/forum?id=lhsb1ChUDF
 
 If you use our benchmark in your works, we would appreciate citations to the paper:
 
