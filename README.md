@@ -55,7 +55,11 @@ cd DHG-Bench
 
 **Download Datasets**
 
-We include all benchmark datasets in the data.zip archive. Users can simply extract the archive with
+All benchmark datasets are available on the Hugging Face Dataset Hub:
+
+https://huggingface.co/datasets/Philley/DHG-Bench-dataset
+
+After downloading `data.zip` from the Hugging Face repository, extract it via:
 
 ```bash
 unzip data.zip
