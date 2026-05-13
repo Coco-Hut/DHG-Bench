@@ -11,8 +11,11 @@ from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,Hyper
                             PlainUnigencoder,HJRL,SheafHyperGNN,EHNN,TMPHN,PhenomNN,PhenomNNS,DPHGNN,TFHNN,PlainMLP,HyperGT,CEGCN,CEGAT
 
 from lib_dataset.data_perturbation import perturbation
-from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges,generate_ind_split_hyperedges
+from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges,generate_ind_split_hyperedges,\
+                                    generate_observed_split_hyperedges,generate_observed_ind_split_hyperedges,\
+                                    build_observed_support_data
 from lib_dataset.hg_loaders import generate_split_hypergraphs,generate_hg_loaders
+from lib_models.HNN.preprocessing import algo_preprocessing
 from lib_utils.aggregator import EdgePredictor,MeanAggregator,MaxminAggregator,MaxAggregator,HyperGPredictor
 from lib_utils.metrics import aggr_metrics,avg_result_printer_edge
 
@@ -36,31 +39,45 @@ class ExpAgent:
             
             fix_seed(seed) 
             
-            dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}/{self.args.dname}/"
+            if self.args.edge_pred_protocol == 'observed':
+                dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}_{self.args.edge_pred_protocol}/{self.args.dname}/"
+            else:
+                dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}/{self.args.dname}/"
             
             if self.args.edge_split_mode == 'ind':
 
                 file_path = dir_path+f"split_{seed}.pt"
                 if not os.path.exists(file_path):
                     os.makedirs(dir_path, exist_ok=True)
-                    generate_ind_split_hyperedges(data,self.args,seed)
+                    if self.args.edge_pred_protocol == 'observed':
+                        generate_observed_ind_split_hyperedges(data,self.args,seed)
+                    else:
+                        generate_ind_split_hyperedges(data,self.args,seed)
 
             elif self.args.edge_split_mode == 'trand':
                 
                 file_path = dir_path+f"split_{seed}.pt"
                 if not os.path.exists(file_path):
                     os.makedirs(dir_path, exist_ok=True)
-                    generate_split_hyperedges(data,self.args,seed)
+                    if self.args.edge_pred_protocol == 'observed':
+                        generate_observed_split_hyperedges(data,self.args,seed)
+                    else:
+                        generate_split_hyperedges(data,self.args,seed)
 
             else:
 
                 raise NotImplementedError
                 
             data_dict = torch.load(file_path, weights_only=False)
+            if self.args.edge_pred_protocol == 'observed':
+                data_for_edge_pred = build_observed_support_data(data,data_dict,self.args)
+                data_for_edge_pred = algo_preprocessing(data_for_edge_pred,self.args)
+            else:
+                data_for_edge_pred = data
             batch_loaders = generate_edge_loaders(data_dict,self.args)
             
             self.args.embedding_mode = True 
-            encoder = parse_model(self.args,data) 
+            encoder = parse_model(self.args,data_for_edge_pred)
             
             if self.args.aggr_mode=='maxmin':
                 aggregator = MaxminAggregator(self.args) 
@@ -75,15 +92,15 @@ class ExpAgent:
             else:
                 model = model.to(self.args.device)
             
-            model = self.trainer.training(model,data,self.args,seed_split=batch_loaders,task_type='edge_pred')
+            model = self.trainer.training(model,data_for_edge_pred,self.args,seed_split=batch_loaders,task_type='edge_pred')
 
             if self.args.eval_verbose:
                 print(f'------------------------------[Seed {seed}]-----------------------------------')
-                result=self.evaluator.evaluate(model,data,seed_split=batch_loaders,task_type='edge_pred',verbose=True)
+                result=self.evaluator.evaluate(model,data_for_edge_pred,seed_split=batch_loaders,task_type='edge_pred',verbose=True)
                 metrics_dict = aggr_metrics(metrics_dict,result) 
                 print(f'------------------------------------------------------------------------------')
             else:
-                result=self.evaluator.evaluate(model,data,seed_split=batch_loaders,task_type='edge_pred',verbose=True)
+                result=self.evaluator.evaluate(model,data_for_edge_pred,seed_split=batch_loaders,task_type='edge_pred',verbose=True)
                 metrics_dict = aggr_metrics(metrics_dict,result) 
 
         print(f'---------------------------------[Final]--------------------------------------')

@@ -24,10 +24,30 @@ def neg_generator(HE, pred_num):
     
     return t_mns, t_sns, t_cns
 
+def neg_generator_excluding(HE, pred_num, exclude_hyperedges):
+    mns = MNSSampler(pred_num)
+    sns = SNSSampler(pred_num)
+    cns = CNSSampler(pred_num)
+
+    context_hyperedges = set(HE)
+    exclude_hyperedges = set(exclude_hyperedges)
+
+    t_mns = mns(context_hyperedges, exclude_hyperedges=exclude_hyperedges)
+    t_sns = sns(context_hyperedges, exclude_hyperedges=exclude_hyperedges)
+    t_cns = cns(context_hyperedges, exclude_hyperedges=exclude_hyperedges)
+
+    t_mns = [list(edge) for edge in list(t_mns)]
+    t_sns = [list(edge) for edge in list(t_sns)]
+    t_cns = [list(edge) for edge in list(t_cns)]
+
+    return t_mns, t_sns, t_cns
+
 def negative_sample(
-        nodes_to_neighbors, size_dist, num_negative, hyperedges, method, corrupt_num = 1, half=False, rw_path = None):
+        nodes_to_neighbors, size_dist, num_negative, hyperedges, method, corrupt_num = 1, half=False, rw_path = None,
+        exclude_hyperedges = None):
     nodes = list(nodes_to_neighbors.keys())
     neg_samples = []
+    forbidden_hyperedges = set(hyperedges if exclude_hyperedges is None else exclude_hyperedges)
     if method == 'UNS':
         size_dist = get_pure_sample_size_dist(len(nodes))
     
@@ -35,12 +55,14 @@ def negative_sample(
     if method in ['SNS', 'UNS']:
         for i in tqdm(range(num_negative), leave=False):
             sampled_edge = sized_random_sampling(
-                size_dist, nodes, nodes_to_neighbors, hyperedges)
+                size_dist, nodes, nodes_to_neighbors, forbidden_hyperedges)
             neg_samples.append(sampled_edge)
     elif method == 'MNS':
         for i in tqdm(range(num_negative), leave=False):
             sampled_node = sized_mf_sampling(
-                size_dist, nodes, nodes_to_neighbors, hyperedges)
+                size_dist, nodes, nodes_to_neighbors,
+                forbidden_hyperedges if exclude_hyperedges is not None else hyperedges,
+                check_existing=exclude_hyperedges is not None)
             neg_samples.append(sampled_node)     
     elif method == 'CNS':
         list_hyperedges = list(hyperedges)
@@ -48,13 +70,13 @@ def negative_sample(
         for i in tqdm(range(num_negative), leave=False):
             sampled_edge = clique_negative_sampling(
                 hyperedges, nodes_to_neighbors, num_negative, list_hyperedges,
-                node_set)
+                node_set, forbidden_hyperedges=forbidden_hyperedges)
             neg_samples.append(sampled_edge)       
 
     return neg_samples
 
 def generate_negative_samples_for_hyperedges(
-        hyperedges, method, neg_samples_size, corrupt_num = 1, half=False, rw_path = None):
+        hyperedges, method, neg_samples_size, corrupt_num = 1, half=False, rw_path = None, exclude_hyperedges = None):
     #print(hyperedges)
     edges = {
         frozenset({u, v}) for hedge in hyperedges
@@ -70,7 +92,8 @@ def generate_negative_samples_for_hyperedges(
     #print('Generating Negative Samples')
     total = math.ceil(neg_samples_size)
     neg_samples = negative_sample(
-        nodes_to_neighbors, size_dist, total, hyperedges, method, corrupt_num = 1, half=False, rw_path = rw_path)
+        nodes_to_neighbors, size_dist, total, hyperedges, method, corrupt_num = 1, half=False, rw_path = rw_path,
+        exclude_hyperedges = exclude_hyperedges)
     negative_hyperedges = [frozenset(x) for x, y in neg_samples]
     
     return negative_hyperedges
@@ -78,25 +101,28 @@ def generate_negative_samples_for_hyperedges(
 class SNSSampler(object):
     def __init__(self, pred_num):
         self.pred_num = pred_num
-    def __call__(self, hedges):
+    def __call__(self, hedges, exclude_hyperedges=None):
         neg_samples_size = int(self.pred_num)
-        neg_samples = generate_negative_samples_for_hyperedges(hedges, 'SNS', neg_samples_size)
+        neg_samples = generate_negative_samples_for_hyperedges(
+            hedges, 'SNS', neg_samples_size, exclude_hyperedges=exclude_hyperedges)
         return neg_samples
 
 class MNSSampler(object):
     def __init__(self, pred_num):
         self.pred_num = pred_num
-    def __call__(self, hedges):
+    def __call__(self, hedges, exclude_hyperedges=None):
         neg_samples_size = int(self.pred_num)
-        neg_samples = generate_negative_samples_for_hyperedges(hedges, 'MNS', neg_samples_size)
+        neg_samples = generate_negative_samples_for_hyperedges(
+            hedges, 'MNS', neg_samples_size, exclude_hyperedges=exclude_hyperedges)
         return neg_samples
     
 class CNSSampler(object):
     def __init__(self, pred_num):
         self.pred_num = pred_num
-    def __call__(self, hedges):
+    def __call__(self, hedges, exclude_hyperedges=None):
         neg_samples_size = int(self.pred_num)
-        neg_samples = generate_negative_samples_for_hyperedges(hedges, 'CNS', neg_samples_size)
+        neg_samples = generate_negative_samples_for_hyperedges(
+            hedges, 'CNS', neg_samples_size, exclude_hyperedges=exclude_hyperedges)
         return neg_samples
 
 '''-------------SNS Sampling Utils------------------'''
@@ -197,7 +223,7 @@ def mfinder_sampling(nodes_to_neighbors, k):
 
     return sampled_nodes, induced_edges
 
-def sized_mf_sampling(size_dist, nodes, nodes_to_neighbors, hyperedges):
+def sized_mf_sampling(size_dist, nodes, nodes_to_neighbors, hyperedges, check_existing=False):
     vals = [v for v, p in size_dist]
     p = [p for v, p in size_dist]
     sampled_size = np.random.choice(vals, p=p)
@@ -207,6 +233,8 @@ def sized_mf_sampling(size_dist, nodes, nodes_to_neighbors, hyperedges):
         sampled_nodes, sampled_edge = mfinder_sampling(
             nodes_to_neighbors, sampled_size)'''
     sampled_nodes= mfinder_sampling(nodes_to_neighbors, sampled_size)
+    while check_existing and frozenset(sampled_nodes[0]) in hyperedges:
+        sampled_nodes= mfinder_sampling(nodes_to_neighbors, sampled_size)
     hyperedges.remove(frozenset({'a', 'b'}))
     return sampled_nodes
 
@@ -214,11 +242,13 @@ def sized_mf_sampling(size_dist, nodes, nodes_to_neighbors, hyperedges):
 
 def clique_negative_sampling(
         hyperedges, nodes_to_neighbors, num_negative,
-        list_hyperedges, node_set):
+        list_hyperedges, node_set, forbidden_hyperedges = None):
+    if forbidden_hyperedges is None:
+        forbidden_hyperedges = hyperedges
     edgeidx = np.random.choice(len(hyperedges), size=1)[0]
     neg = list_hyperedges[edgeidx]
 
-    while neg in hyperedges:
+    while neg in forbidden_hyperedges:
         edgeidx = np.random.choice(len(hyperedges), size=1)[0]
         edge = list(list_hyperedges[edgeidx])
         node_to_remove = np.random.choice(len(edge), size=1)[0]
