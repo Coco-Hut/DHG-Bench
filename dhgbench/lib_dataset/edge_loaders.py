@@ -17,7 +17,20 @@ def hyperedges_from_data(data):
     for node, edge in zip(*hyperedge_index.tolist()):
         hyperedges[edge].add(node)
 
-    return [frozenset(nodes) for nodes in hyperedges.values()]
+    return deduplicate_hyperedges(hyperedges.values())
+
+def deduplicate_hyperedges(hyperedges):
+    unique_hyperedges = []
+    seen = set()
+
+    for edge in hyperedges:
+        canonical_edge = frozenset(int(node) for node in edge)
+        if canonical_edge in seen:
+            continue
+        seen.add(canonical_edge)
+        unique_hyperedges.append(canonical_edge)
+
+    return unique_hyperedges
 
 def hyperedges_to_index(hyperedges, device):
     node_ids = []
@@ -52,14 +65,7 @@ def generate_ind_split_hyperedges(data, args, seed):
     ratio: train/val/test node ratio
     """
 
-    hyperedge_index = data.hyperedge_index.to('cpu')
-
-    hyperedges = defaultdict(set)
-
-    for node, edge in zip(*hyperedge_index.tolist()):
-        hyperedges[edge].add(node)
-
-    hyperedges = [frozenset(nodes) for nodes in hyperedges.values()]
+    hyperedges = hyperedges_from_data(data)
 
     ratio = (args.train_prop, args.valid_prop, 1 - args.train_prop - args.valid_prop)
 
@@ -98,9 +104,10 @@ def generate_ind_split_hyperedges(data, args, seed):
 
     print(f'train_size: {train_size}, valid_size: {valid_size}, test_size: {test_size}')
 
-    train_mns, train_sns, train_cns = neg_generator(GP_train, train_size)
-    valid_mns, valid_sns, valid_cns = neg_generator(GP_valid, valid_size)
-    test_mns, test_sns, test_cns = neg_generator(GP_test, test_size)
+    all_positive_hyperedges = set(hyperedges)
+    train_mns, train_sns, train_cns = neg_generator_excluding(GP_train, train_size, all_positive_hyperedges)
+    valid_mns, valid_sns, valid_cns = neg_generator_excluding(GP_valid, valid_size, all_positive_hyperedges)
+    test_mns, test_sns, test_cns = neg_generator_excluding(GP_test, test_size, all_positive_hyperedges)
 
     # positive samples
     ground_train_data = []
@@ -116,6 +123,12 @@ def generate_ind_split_hyperedges(data, args, seed):
     f'./lib_edge_splits/{args.edge_split_mode}/{args.dname}/split_{seed}.pt')
 
 def generate_observed_ind_split_hyperedges(data, args, seed):
+    raise ValueError(
+        "The observed edge prediction protocol currently supports only "
+        "--edge_split_mode=trand. The observed ind split is disabled because "
+        "its support graph contains the train positives."
+    )
+
     HE = hyperedges_from_data(data)
 
     ratio = (args.train_prop, args.valid_prop, 1 - args.train_prop - args.valid_prop)
@@ -176,14 +189,7 @@ def generate_observed_ind_split_hyperedges(data, args, seed):
 
 def generate_split_hyperedges(data,args,seed):
 
-    hyperedge_index = data.hyperedge_index.to('cpu')
-
-    hyperedges = defaultdict(set)
-
-    for node, edge in zip(*hyperedge_index.tolist()):
-        hyperedges[edge].add(node)
-
-    HE = [frozenset(nodes) for nodes in hyperedges.values()]
+    HE = hyperedges_from_data(data)
     
     base_cover = get_cover_idx(HE)
     union = get_union(HE)
@@ -234,9 +240,10 @@ def generate_split_hyperedges(data,args,seed):
     GP_valid = ground_valid_data + ground_train_data + train_only_data + valid_only_data
     GP_test = GP_valid
     
-    train_mns, train_sns, train_cns = neg_generator(GP_train, ground_train_num+train_only_num)
-    valid_mns, valid_sns, valid_cns = neg_generator(GP_valid, ground_valid_num+valid_only_num)
-    test_mns, test_sns, test_cns = neg_generator(GP_test, test_num)
+    all_positive_hyperedges = set(HE)
+    train_mns, train_sns, train_cns = neg_generator_excluding(GP_train, ground_train_num+train_only_num, all_positive_hyperedges)
+    valid_mns, valid_sns, valid_cns = neg_generator_excluding(GP_valid, ground_valid_num+valid_only_num, all_positive_hyperedges)
+    test_mns, test_sns, test_cns = neg_generator_excluding(GP_test, test_num, all_positive_hyperedges)
     
     # positive samples
     ground_train_data = [list(edge) for edge in ground_train_data]

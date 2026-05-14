@@ -10,10 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "dhgbench"))
 
 from lib_dataset.edge_loaders import (  # noqa: E402
+    HEBatchGenerator,
     build_observed_support_data,
+    deduplicate_hyperedges,
+    generate_observed_ind_split_hyperedges,
     generate_observed_split_hyperedges,
     load_val,
 )
+from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
 
 
 def make_hyperedge_index(hyperedges):
@@ -27,6 +31,19 @@ def make_hyperedge_index(hyperedges):
 
 
 class ObservedEdgePredictionProtocolTest(unittest.TestCase):
+    def test_deduplicate_hyperedges_uses_node_set_identity(self):
+        hyperedges = [
+            [0, 1, 2],
+            [2, 1, 0],
+            [3, 4, 5],
+            [3, 4, 5],
+            [5, 6, 7],
+        ]
+
+        unique = deduplicate_hyperedges(hyperedges)
+
+        self.assertEqual(unique, [frozenset([0, 1, 2]), frozenset([3, 4, 5]), frozenset([5, 6, 7])])
+
     def test_observed_protocol_separates_support_targets_and_negatives(self):
         hyperedges = [
             [0, 1, 2],
@@ -41,6 +58,8 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             [3, 6, 7],
             [1, 5, 6],
             [2, 4, 7],
+            [2, 1, 0],
+            [7, 4, 2],
         ]
         data = SimpleNamespace(hyperedge_index=make_hyperedge_index(hyperedges))
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -68,8 +87,13 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertTrue(train_pos)
         self.assertTrue(valid_pos)
         self.assertTrue(test_pos)
+        self.assertTrue(support.isdisjoint(train_pos))
         self.assertTrue(support.isdisjoint(valid_pos))
         self.assertTrue(support.isdisjoint(test_pos))
+        self.assertTrue(train_pos.isdisjoint(valid_pos))
+        self.assertTrue(train_pos.isdisjoint(test_pos))
+        self.assertTrue(valid_pos.isdisjoint(test_pos))
+        self.assertEqual(len(support | train_pos | valid_pos | test_pos), len(all_positive))
 
         val_loader = load_val(data_dict, bs=128, device="cpu", label="pos")
         self.assertEqual({frozenset(edge) for edge in val_loader.hyperedges}, valid_pos)
@@ -100,6 +124,41 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertEqual(support_data.num_hyperedges, 2)
         self.assertEqual(set(support_data.hyperedge_index[1].tolist()), {0, 1})
         self.assertEqual(support_data.hyperedge_index.shape[1], 6)
+
+    def test_observed_ind_split_is_disabled(self):
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4], [4, 5, 6]])
+        )
+        args = SimpleNamespace(
+            train_prop=0.6,
+            valid_prop=0.2,
+            edge_save_dir="/tmp/",
+            edge_split_mode="ind",
+            edge_pred_protocol="observed",
+            dname="toy",
+            device="cpu",
+        )
+
+        with self.assertRaisesRegex(ValueError, "observed edge prediction protocol"):
+            generate_observed_ind_split_hyperedges(data, args, seed=0)
+
+    def test_singleton_edge_eval_returns_lists(self):
+        class SingletonEvalModel:
+            def eval(self):
+                pass
+
+            def encoding(self, data):
+                return torch.zeros(2, 4), None
+
+            def aggregate(self, nfeat, hedges, mode="Eval"):
+                return [torch.tensor(0.0) for _ in hedges]
+
+        loader = HEBatchGenerator([[0, 1]], [1], batch_size=128, device="cpu", test_generator=True)
+
+        preds, labels = evaluate_edge_loader(SingletonEvalModel(), object(), loader)
+
+        self.assertEqual(preds, [0.5])
+        self.assertEqual(labels, [1.0])
 
 
 if __name__ == "__main__":

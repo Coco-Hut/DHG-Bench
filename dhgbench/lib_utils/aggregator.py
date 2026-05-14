@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from collections import defaultdict
 from lib_models.HNN import MLP
 from torch_geometric.nn import global_max_pool,global_mean_pool
@@ -189,7 +188,7 @@ class MaxminAggregator(nn.Module):
         return max_val - min_val
     
     def classify(self, embedding):
-        return F.sigmoid(self.classifier(embedding))
+        return self.classifier(embedding)
     
     def forward(self, embeddings,method):
         embedding = self.aggregate(embeddings,method)
@@ -223,7 +222,7 @@ class MaxAggregator(nn.Module):
         return max_val
     
     def classify(self, embedding):
-        return F.sigmoid(self.classifier(embedding))
+        return self.classifier(embedding)
     
     def forward(self, embeddings,method):
         embedding = self.aggregate(embeddings,method)

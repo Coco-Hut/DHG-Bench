@@ -32,6 +32,12 @@ class ExpAgent:
         self.train_times = []
 
     def edge_pred_train_eval(self,data):
+        if self.args.edge_pred_protocol == 'observed' and self.args.edge_split_mode == 'ind':
+            raise ValueError(
+                "The observed edge prediction protocol currently supports only "
+                "--edge_split_mode=trand. The observed ind split is disabled because "
+                "its support graph contains the train positives."
+            )
         
         metrics_dict = {'train':defaultdict(list),'val':defaultdict(list),'test':defaultdict(list)}
         
