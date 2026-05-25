@@ -178,7 +178,7 @@ def evaluate_edge_loader(model, data, dataloader):
             if is_last:
                 break
 
-        test_preds = torch.sigmoid(torch.stack(test_preds).squeeze())
+        test_preds = torch.sigmoid(torch.stack(test_preds).view(-1))
         test_labels = torch.cat(test_labels, dim=0)
 
     return test_preds.tolist(), test_labels.tolist()

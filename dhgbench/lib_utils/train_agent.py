@@ -129,7 +129,6 @@ class Trainer:
 
                 pos_preds = model.aggregate(n, pos_hedges, mode='Train') 
                 neg_preds = model.aggregate(n, neg_hedges, mode='Train') 
-                pos_preds,neg_preds = torch.sigmoid(pos_preds),torch.sigmoid(neg_preds)
                 
                 d_real_loss = F.binary_cross_entropy_with_logits(pos_preds, pos_labels) 
                 d_fake_loss = F.binary_cross_entropy_with_logits(neg_preds, neg_labels) 
@@ -143,7 +142,8 @@ class Trainer:
                 if is_last :
                     break 
             
-            if (epoch+1) % args.display_step == 0:
+            should_evaluate = (epoch+1) % args.display_step == 0 or (epoch+1) == args.epochs
+            if should_evaluate:
                 
                 print(f'Epoch: {epoch+1:02d}, Training loss: {total_loss:.4f}')
                 
@@ -160,6 +160,8 @@ class Trainer:
         print(f'Training Time: {end_time-start_time:.2f}')
 
         if args.early_stop:
+            if best_model is None:
+                best_model = copy.deepcopy(model)
             return best_model
         else:
             return model

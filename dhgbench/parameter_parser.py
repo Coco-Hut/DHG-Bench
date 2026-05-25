@@ -132,6 +132,7 @@ def parameter_parser():
     parser.add_argument('--exclude_self', action='store_true')
     
     parser.add_argument('--edge_split_mode',default='ind',choices=['ind','trand'])
+    parser.add_argument('--edge_pred_protocol',default='legacy',choices=['legacy','observed'])
     parser.add_argument('--edge_save_dir', action='store_true',default=f'./lib_edge_splits/') 
     parser.add_argument('--edge_batch_size', action='store_true',default=512) 
     parser.add_argument('--e_embed_hidden',default=64) 
