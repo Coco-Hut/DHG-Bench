@@ -31,13 +31,13 @@ def algo_preprocessing(data,args):
         data = hjrl_preprocessing(data,args)
     elif args.method == 'TMPHN':
         data = tmphn_preprocessing(data,args) 
-    elif args.method == 'DPHGNN':
+    elif args.method in ['DPHGNN','DPHGNN_Paper']:
         data = dphgnn_preprocessing(data,args) 
     elif args.method == 'EHNN':
         data = ehnn_preprocessing(data,args)
     elif args.method in ['PlainUnigencoder']:
         data =uni_expansion(data,args)
-    elif args.method == 'HyperGT':
+    elif args.method in ['HyperGT','HyperGT_Paper']:
         data = hypergt_preprocessing(data,args)
     elif args.method in ['CEGCN','CEGAT']:
         data = cegnn_preprocessing(data,args)
@@ -1062,7 +1062,7 @@ def hypergt_preprocessing(data, args, add_reverse=False, add_token_loops=True):
       - data.num_tokens = n + m
       - data.H:    [n, m] (float32, device)
       - data.adjs: [edge_index_token] (long, device)
-      - data.x:    [n+m, d]
+      - data.x:    [n+m, d], with hyperedge-token features controlled by args.hefeat
     """
     dev = torch.device(args.device)
 
@@ -1104,13 +1104,21 @@ def hypergt_preprocessing(data, args, add_reverse=False, add_token_loops=True):
 
     edge_index = edge_index.to(torch.long).to(dev)
 
-    # ---- 4) x -> [n, m]
+    # ---- 4) x -> [n + m, d]
     x = data.x
     if x.device != dev:
         x = x.to(dev)
     if x.size(0) == n:
-        pad = torch.zeros((m, x.size(1)), dtype=x.dtype, device=dev)
-        x = torch.cat([x, pad], dim=0)                       # [n+m, F]
+        hefeat = getattr(args, 'hefeat', 'zero')
+        if hefeat == 'mean':
+            hyperedge_x = torch_scatter.scatter_mean(x[v], e, dim=0, dim_size=m)
+        elif hefeat == 'zero':
+            hyperedge_x = torch.zeros((m, x.size(1)), dtype=x.dtype, device=dev)
+        elif hefeat == 'rand':
+            hyperedge_x = torch.rand((m, x.size(1)), dtype=x.dtype, device=dev)
+        else:
+            raise ValueError(f"Invalid HyperGT hyperedge feature mode: {hefeat}")
+        x = torch.cat([x, hyperedge_x], dim=0)                       # [n+m, F]
     elif x.size(0) != N:
         raise ValueError(f"data.x.shape[0]={x.size(0)} not match n(={n})/m(={m})")
 

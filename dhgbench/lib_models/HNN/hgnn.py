@@ -12,6 +12,7 @@ class HypergraphConv(MessagePassing):
 
     def __init__(self, in_channels, out_channels, symdegnorm=False, use_attention=False, heads=1,
                  concat=True, negative_slope=0.2, dropout=0, bias=True,
+                 attention_mode='edge',
                  **kwargs):
         kwargs.setdefault('aggr', 'add')
         super(HypergraphConv, self).__init__(node_dim=0, **kwargs)
@@ -20,6 +21,9 @@ class HypergraphConv(MessagePassing):
         self.out_channels = out_channels
         self.use_attention = use_attention
         self.symdegnorm = symdegnorm
+        self.attention_mode = attention_mode
+        if self.use_attention and self.attention_mode not in ['node', 'edge']:
+            raise ValueError("attention_mode must be either 'node' or 'edge'")
 
         if self.use_attention:
             self.heads = heads
@@ -72,12 +76,26 @@ class HypergraphConv(MessagePassing):
 
         alpha = None
         if self.use_attention:
-            assert num_edges <= num_edges
             x = x.view(-1, self.heads, self.out_channels)
-            x_i, x_j = x[hyperedge_index[0]], x[hyperedge_index[1]]
+            edge_card = scatter_add(
+                x.new_ones(hyperedge_index.size(1), device=x.device),
+                hyperedge_index[1],
+                dim=0,
+                dim_size=num_edges,
+            ).clamp(min=1.0)
+            hyperedge_attr = scatter_add(
+                x[hyperedge_index[0]],
+                hyperedge_index[1],
+                dim=0,
+                dim_size=num_edges,
+            ) / edge_card.view(-1, 1, 1)
+            x_i, x_j = x[hyperedge_index[0]], hyperedge_attr[hyperedge_index[1]]
             alpha = (torch.cat([x_i, x_j], dim=-1) * self.att).sum(dim=-1)
             alpha = F.leaky_relu(alpha, self.negative_slope)
-            alpha = softmax(alpha, hyperedge_index[0], num_nodes=x.size(0))
+            if self.attention_mode == 'node':
+                alpha = softmax(alpha, hyperedge_index[1], num_nodes=num_edges)
+            else:
+                alpha = softmax(alpha, hyperedge_index[0], num_nodes=x.size(0))
             alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
         if not self.symdegnorm:
@@ -151,21 +169,42 @@ class HCHA(nn.Module):
         self.dropout = args.dropout  # Note that default is 0.6
         self.symdegnorm = args.HCHA_symdegnorm
         self.hidden_dim = args.MLP_hidden
+        self.use_attention = getattr(args, "HCHA_use_attention", False)
+        self.heads = getattr(args, "HCHA_heads", 8)
+        self.output_heads = getattr(args, "HCHA_output_heads", 1)
+        self.attention_mode = getattr(args, "HCHA_attention_mode", "edge")
+        self.negative_slope = getattr(args, "HCHA_negative_slope", 0.2)
 
 #       Note that add dropout to attention is default in the original paper
         self.convs = nn.ModuleList()
+
+        def layer(in_channels, out_channels, heads):
+            if self.use_attention:
+                if out_channels % heads != 0:
+                    raise ValueError(
+                        f"HCHA attention output dimension {out_channels} must be divisible by heads={heads}"
+                    )
+                return HypergraphConv(
+                    in_channels,
+                    out_channels // heads,
+                    self.symdegnorm,
+                    use_attention=True,
+                    heads=heads,
+                    concat=True,
+                    negative_slope=self.negative_slope,
+                    dropout=self.dropout,
+                    attention_mode=self.attention_mode,
+                )
+            return HypergraphConv(in_channels, out_channels, self.symdegnorm)
+
         if self.num_layers == 1:
-            self.convs.append(HypergraphConv(num_features,
-                               num_targets, self.symdegnorm))
+            self.convs.append(layer(num_features, num_targets, self.output_heads))
         else:
-            self.convs.append(HypergraphConv(num_features,
-                                            self.hidden_dim, self.symdegnorm))
+            self.convs.append(layer(num_features, self.hidden_dim, self.heads))
             for _ in range(self.num_layers-2):
-                self.convs.append(HypergraphConv(
-                    self.hidden_dim, self.hidden_dim, self.symdegnorm))
+                self.convs.append(layer(self.hidden_dim, self.hidden_dim, self.heads))
             # Output heads is set to 1 as default
-            self.convs.append(HypergraphConv(
-                self.hidden_dim, num_targets, self.symdegnorm))
+            self.convs.append(layer(self.hidden_dim, num_targets, self.output_heads))
 
     def reset_parameters(self):
         for conv in self.convs:

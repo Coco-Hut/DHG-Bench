@@ -17,7 +17,10 @@ class DPHGNN(nn.Module):
         self.spectral_layer = HGSpectralNet(num_features,args.spectral_embed_dim)
         self.fc = nn.Linear(in_features=self.spectral_layer.out_channels+self.taa_layer.out_channels, 
                             out_features=self.fc_dim).to(args.device)
-        self.dff_layer = DFF(self.fc_dim,num_targets,args)
+        if getattr(args, 'DPHGNN_dff_mode', 'attention') == 'paper':
+            self.dff_layer = PaperDFF(self.fc_dim,num_targets,args)
+        else:
+            self.dff_layer = DFF(self.fc_dim,num_targets,args)
     
     def reset_parameters(self):
         self.taa_layer.reset_parameters()
@@ -114,6 +117,96 @@ class HypergraphConv(nn.Module):
             X = F.dropout(X, self.dropout, training=self.training)
             
         return X
+
+class PaperDFF(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int, args):
+        super(PaperDFF, self).__init__()
+        self.dff_MLP_hidden = args.dff_MLP_hidden
+        self.dff_num_layers = args.dff_num_layers
+
+        self.convs = nn.ModuleList()
+        self.convs.append(PaperDPHGNNConv(in_channels, self.dff_MLP_hidden, args, is_last=False))
+        for _ in range(self.dff_num_layers - 1):
+            self.convs.append(PaperDPHGNNConv(self.dff_MLP_hidden, self.dff_MLP_hidden, args, is_last=False))
+        self.convs.append(PaperHypergraphConv(self.dff_MLP_hidden, out_channels))
+
+    def reset_parameters(self):
+        for conv in self.convs:
+            conv.reset_parameters()
+
+    def forward(self, X, HG, S_features):
+        for conv in self.convs[:-1]:
+            X = conv(X, HG, S_features)
+        return self.convs[-1](X, HG, S_features)
+
+class PaperDPHGNNConv(nn.Module):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        args,
+        bias: bool = True,
+        drop_rate: float = 0.5,
+        is_last: bool = False,
+    ):
+        super(PaperDPHGNNConv, self).__init__()
+        self.is_last = is_last
+        self.dropout = drop_rate
+        self.star_proj = nn.Linear(args.expan_dim, in_channels, bias=bias)
+        self.msg_proj = nn.Linear(in_channels, out_channels, bias=bias)
+        self.skip_proj = nn.Linear(in_channels, out_channels, bias=bias)
+
+    def reset_parameters(self):
+        self.star_proj.reset_parameters()
+        self.msg_proj.reset_parameters()
+        self.skip_proj.reset_parameters()
+
+    def forward(self, X, hyperedge_index, S_features):
+        V, E = hyperedge_index
+        num_nodes = X.size(0)
+        num_edges = S_features.size(0)
+
+        ones = torch.ones(V.shape[0], device=V.device, dtype=X.dtype)
+        D_v = torch_scatter.scatter_add(ones, V, dim=0, dim_size=num_nodes).clamp_min(1)
+        D_e = torch_scatter.scatter_add(ones, E, dim=0, dim_size=num_edges).clamp_min(1)
+        Dv_inv_sqrt = D_v.pow(-0.5)
+        De_inv = D_e.pow(-1.0)
+
+        node_to_edge = scatter_add(X[V] * Dv_inv_sqrt[V].unsqueeze(-1), E, dim=0, dim_size=num_edges)
+        star_term = self.star_proj(S_features) * De_inv.unsqueeze(-1)
+        fused_edge = node_to_edge + star_term
+
+        edge_to_node = scatter_add(fused_edge[E] * De_inv[E].unsqueeze(-1), V, dim=0, dim_size=num_nodes)
+        X = self.skip_proj(X) + self.msg_proj(edge_to_node)
+
+        if not self.is_last:
+            X = F.elu(X)
+            X = F.dropout(X, self.dropout, training=self.training)
+
+        return X
+
+class PaperHypergraphConv(nn.Module):
+    def __init__(self, in_channels, out_channels, bias: bool = True):
+        super(PaperHypergraphConv, self).__init__()
+        self.W = nn.Linear(in_channels, out_channels, bias=bias)
+
+    def reset_parameters(self):
+        self.W.reset_parameters()
+
+    def forward(self, X, hyperedge_index, S_features):
+        V, E = hyperedge_index
+        num_nodes = X.size(0)
+        num_edges = int(E.max().item()) + 1
+
+        ones = torch.ones(V.shape[0], device=V.device, dtype=X.dtype)
+        D_v = torch_scatter.scatter_add(ones, V, dim=0, dim_size=num_nodes).clamp_min(1)
+        D_e = torch_scatter.scatter_add(ones, E, dim=0, dim_size=num_edges).clamp_min(1)
+        Dv_inv_sqrt = D_v.pow(-0.5)
+        De_inv = D_e.pow(-1.0)
+
+        node_to_edge = scatter_add(X[V] * Dv_inv_sqrt[V].unsqueeze(-1), E, dim=0, dim_size=num_edges)
+        edge_to_node = scatter_add(node_to_edge[E] * De_inv[E].unsqueeze(-1), V, dim=0, dim_size=num_nodes)
+        return self.W(edge_to_node)
 
 class DPHGNNConv(nn.Module):
     def __init__(self,
