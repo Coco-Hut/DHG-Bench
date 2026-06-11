@@ -3,20 +3,17 @@ default:
   embedding_hidden: 128
   epochs: 200
   dropout: 0.2
-  lr: 1.0e-3  
+  lr: 1.0e-3
   wd: 0
-
-  edconv_type: "EquivSet" 
+  edconv_type: "EquivSet"
   MLP_hidden: 128
   MLP_num_layers: 2
   MLP2_num_layers: -1
   MLP3_num_layers: -1
   decoder_hidden: 128
   decoder_num_layer: 1
-
-  aggregate: "mean" 
-
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   activation: "prelu"
   AllSet_input_norm: true
   alpha: 0.5
@@ -26,10 +23,9 @@ RHG_10:
   embedding_hidden: 64
   epochs: 200
   dropout: 0.2
-  lr: 1.0e-3  
+  lr: 1.0e-3
   wd: 0
-
-  edconv_type: "EquivSet" 
+  edconv_type: "EquivSet"
   MLP_hidden: 64
   MLP_num_layers: 1
   MLP2_num_layers: -1
@@ -38,11 +34,118 @@ RHG_10:
   decoder_num_layer: 1
   pooling: "mean"
   early_stop: true
-
-  aggregate: "mean" 
-
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   activation: "prelu"
   AllSet_input_norm: true
   alpha: 0.1
 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 1
+  MLP2_num_layers: -1
+  MLP3_num_layers: -1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 1
+  MLP2_num_layers: -1
+  MLP3_num_layers: -1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  pooling: "max"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 1
+  MLP2_num_layers: -1
+  MLP3_num_layers: -1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  MLP2_num_layers: -1
+  MLP3_num_layers: -1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  pooling: "max"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 1
+  MLP2_num_layers: -1
+  MLP3_num_layers: -1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  pooling: "max"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1

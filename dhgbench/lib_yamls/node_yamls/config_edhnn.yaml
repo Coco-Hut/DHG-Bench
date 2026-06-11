@@ -3,20 +3,17 @@ default:
   embedding_hidden: 128
   epochs: 200
   dropout: 0.2
-  lr: 1.0e-3  
+  lr: 1.0e-3
   wd: 0
-
-  edconv_type: "EquivSet" 
+  edconv_type: "EquivSet"
   MLP_hidden: 128
   MLP_num_layers: 2
   MLP2_num_layers: -1
   MLP3_num_layers: -1
   decoder_hidden: 128
   decoder_num_layer: 1
-
-  aggregate: "mean" # aggregate ['sum', 'mean']
-
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   activation: "prelu"
   AllSet_input_norm: true
   alpha: 0.5
@@ -24,22 +21,359 @@ default:
 cora:
   All_num_layers: 1
   embedding_hidden: 128
-  epochs: 500
+  epochs: 200
   dropout: 0.5
-  lr: 1.0e-3  
+  lr: 1.0e-3
   wd: 0
-
-  edconv_type: "EquivSet" 
+  edconv_type: "EquivSet"
   MLP_hidden: 512
   MLP_num_layers: 0
   MLP2_num_layers: 1
   MLP3_num_layers: 1
   decoder_hidden: 256
   decoder_num_layer: 1
-
-  aggregate: "mean" # aggregate ['sum', 'mean']
-
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   activation: "prelu"
   AllSet_input_norm: true
-  alpha: 0.5
+  alpha: 0.2
+
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.8
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 40
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.7
+
+yelp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 500
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+walmart-trips-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.7
+
+trivago:
+  All_num_layers: 8
+  embedding_hidden: 128
+  epochs: 1000
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 64
+  MLP_num_layers: 0
+  MLP2_num_layers: 0
+  MLP3_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.0
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 180
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+amazon:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 160
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.1
+
+twitch:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 160
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 140
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 20
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+bail:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+credit:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 1
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 2
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  epochs: 80
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2
+
+house-committees-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  edconv_type: "EquivSet"
+  MLP_hidden: 512
+  MLP_num_layers: 0
+  MLP2_num_layers: 1
+  MLP3_num_layers: 1
+  decoder_hidden: 256
+  decoder_num_layer: 1
+  aggregate: "mean"
+  normalization: "ln"
+  activation: "prelu"
+  AllSet_input_norm: true
+  alpha: 0.2

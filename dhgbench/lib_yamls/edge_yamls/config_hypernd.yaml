@@ -13,7 +13,7 @@ default:
   restart_alpha: 0.5
 
   normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
-  aggregate: "mean"   # aggregate ['sum', 'mean']
+  aggregate: "mean"   
 
 cora:
   embedding_hidden: 128
@@ -30,5 +30,89 @@ cora:
   restart_alpha: 0.5
 
   normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
-  aggregate: "sum"   # aggregate ['sum', 'mean']
+  aggregate: "sum"   
 
+pubmed:
+  embedding_hidden: 128
+  MLP_num_layers: 2
+  MLP_hidden: 512
+  epochs: 300
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.00001
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.2
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "sum"   
+
+coauthor_cora:
+  embedding_hidden: 128
+  MLP_num_layers: 2
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.00001
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.3
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "sum"  
+
+coauthor_dblp:
+  embedding_hidden: 128
+  MLP_num_layers: 2
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.00001
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.3
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "sum"   
+
+actor:
+  embedding_hidden: 128
+  MLP_num_layers: 2
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.00001
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.8
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "sum"   
+
+pokec:
+  embedding_hidden: 128
+  MLP_num_layers: 2
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.6
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "sum"   

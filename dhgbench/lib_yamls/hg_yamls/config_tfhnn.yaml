@@ -26,3 +26,82 @@ RHG_10:
   early_stop: true
   hg_batch_size: 128
 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  alpha: 0.1
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  alpha: 0.1
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  alpha: 0.1
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  alpha: 0.9
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+  pooling: "max"
+  early_stop: true
+  hg_batch_size: 128
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  alpha: 0.9
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+  pooling: "max"
+  early_stop: true
+  hg_batch_size: 128

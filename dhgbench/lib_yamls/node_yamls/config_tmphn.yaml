@@ -1,31 +1,224 @@
 default:
-  All_num_layers: 1 
+  All_num_layers: 1
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
   lr: 1.0e-3
   wd: 0.0
-
-  hyperG_norm: false # whether normalize hypergraph adjacency tensor\
+  hyperG_norm: false
   hid_dim: 128
-  M: 5 # the maximum cardinality of the hypergraph
-  Mlst: #'the maximum cardinality of the hypergraph at each layer, max(Mlst) = M'
-    - 3 
-  combine: "concat" # 'the combine operation in T-MPHN (e.g., concat, sum))'
+  M: 5
+  Mlst:
+    - 3
+  combine: "concat"
 
 cora:
-  All_num_layers: 1 
+  All_num_layers: 1
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 20
   dropout: 0.5
-  lr: 1.0e-2 
+  lr: 1.0e-2
   wd: 0.0
-
-  hyperG_norm: false # whether normalize hypergraph adjacency tensor\
+  hyperG_norm: false
   hid_dim: 128
-  M: 5 # the maximum cardinality of the hypergraph
-  Mlst: 
-    - 5 #'the maximum cardinality of the hypergraph at each layer, max(Mlst) = M' 
-  combine: "concat" # 'the combine operation in T-MPHN (e.g., concat, sum))'
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 20
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 128
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+amazon:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+twitch:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 50
+  dropout: 0.7
+  lr: 1.0e-2
+  wd: 0.01
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+bail:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 256
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 128
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 128
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+zoo:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 128
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  hyperG_norm: false
+  hid_dim: 128
+  M: 5
+  Mlst:
+    - 5
+  combine: "concat"

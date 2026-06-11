@@ -42,3 +42,112 @@ cora:
   AllSet_input_norm: true
   residual_sheaf: false
 
+pubmed:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 80
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  init_hedge: "avg" # choices=['rand', 'avg']
+  sheaf_normtype: "sym_degree_norm" # choices=['degree_norm', 'block_norm', 'sym_degree_norm', 'sym_block_norm'] used to normalise the sheaf laplacian
+  sheaf_act: "sigmoid" # choices=['sigmoid', 'tanh', 'none']
+  sheaf_dropout: false  # final activation used after predicting the dxd block
+  sheaf_left_proj: false # multiply to the left with IxW
+  dynamic_sheaf: true # if set to True, a different sheaf is predicted at each layer
+  sheaf_special_head: false # if set to True, a special head corresponding to alpha=1 and d=heads-1 in that case)
+  sheaf_pred_block: "MLP_var1" # ['MLP_var1', 'MLP_var2', 'MLP_var3', 'cp_decomp']
+  sheaf_transformer_head: 1 # only when sheaf_pred_block==transformer. The number of transformer head used to predict the dxd blocks
+  stalk_dim: 4
+  AllSet_input_norm: true
+  residual_sheaf: false
+
+coauthor_cora:
+  All_num_layers: 4
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 15
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  init_hedge: "avg" # choices=['rand', 'avg']
+  sheaf_normtype: "sym_degree_norm" # choices=['degree_norm', 'block_norm', 'sym_degree_norm', 'sym_block_norm'] used to normalise the sheaf laplacian
+  sheaf_act: "sigmoid" # choices=['sigmoid', 'tanh', 'none']
+  sheaf_dropout: false  # final activation used after predicting the dxd block
+  sheaf_left_proj: false # multiply to the left with IxW
+  dynamic_sheaf: true # if set to True, a different sheaf is predicted at each layer
+  sheaf_special_head: false # if set to True, a special head corresponding to alpha=1 and d=heads-1 in that case)
+  sheaf_pred_block: "MLP_var1" # ['MLP_var1', 'MLP_var2', 'MLP_var3', 'cp_decomp']
+  sheaf_transformer_head: 1 # only when sheaf_pred_block==transformer. The number of transformer head used to predict the dxd blocks
+  stalk_dim: 4
+  AllSet_input_norm: true
+  residual_sheaf: false
+
+coauthor_dblp:
+  All_num_layers: 4
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 20
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  init_hedge: "avg" # choices=['rand', 'avg']
+  sheaf_normtype: "sym_degree_norm" # choices=['degree_norm', 'block_norm', 'sym_degree_norm', 'sym_block_norm'] used to normalise the sheaf laplacian
+  sheaf_act: "sigmoid" # choices=['sigmoid', 'tanh', 'none']
+  sheaf_dropout: false  # final activation used after predicting the dxd block
+  sheaf_left_proj: false # multiply to the left with IxW
+  dynamic_sheaf: true # if set to True, a different sheaf is predicted at each layer
+  sheaf_special_head: false # if set to True, a special head corresponding to alpha=1 and d=heads-1 in that case)
+  sheaf_pred_block: "MLP_var1" # ['MLP_var1', 'MLP_var2', 'MLP_var3', 'cp_decomp']
+  sheaf_transformer_head: 1 # only when sheaf_pred_block==transformer. The number of transformer head used to predict the dxd blocks
+  stalk_dim: 4
+  AllSet_input_norm: true
+  residual_sheaf: false
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  init_hedge: "avg" # choices=['rand', 'avg']
+  sheaf_normtype: "sym_degree_norm" # choices=['degree_norm', 'block_norm', 'sym_degree_norm', 'sym_block_norm'] used to normalise the sheaf laplacian
+  sheaf_act: "sigmoid" # choices=['sigmoid', 'tanh', 'none']
+  sheaf_dropout: false  # final activation used after predicting the dxd block
+  sheaf_left_proj: false # multiply to the left with IxW
+  dynamic_sheaf: true # if set to True, a different sheaf is predicted at each layer
+  sheaf_special_head: false # if set to True, a special head corresponding to alpha=1 and d=heads-1 in that case)
+  sheaf_pred_block: "MLP_var1" # ['MLP_var1', 'MLP_var2', 'MLP_var3', 'cp_decomp']
+  sheaf_transformer_head: 1 # only when sheaf_pred_block==transformer. The number of transformer head used to predict the dxd blocks
+  stalk_dim: 4
+  AllSet_input_norm: true
+  residual_sheaf: false
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  init_hedge: "avg" # choices=['rand', 'avg']
+  sheaf_normtype: "sym_degree_norm" # choices=['degree_norm', 'block_norm', 'sym_degree_norm', 'sym_block_norm'] used to normalise the sheaf laplacian
+  sheaf_act: "sigmoid" # choices=['sigmoid', 'tanh', 'none']
+  sheaf_dropout: false  # final activation used after predicting the dxd block
+  sheaf_left_proj: false # multiply to the left with IxW
+  dynamic_sheaf: true # if set to True, a different sheaf is predicted at each layer
+  sheaf_special_head: false # if set to True, a special head corresponding to alpha=1 and d=heads-1 in that case)
+  sheaf_pred_block: "MLP_var1" # ['MLP_var1', 'MLP_var2', 'MLP_var3', 'cp_decomp']
+  sheaf_transformer_head: 1 # only when sheaf_pred_block==transformer. The number of transformer head used to predict the dxd blocks
+  stalk_dim: 4
+  AllSet_input_norm: true
+  residual_sheaf: false

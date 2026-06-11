@@ -12,7 +12,7 @@ default:
   HyperND_steps: 100
   restart_alpha: 0.5
 
-  normalization: "ln" 
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
   aggregate: "mean"   
 
 RHG_10:
@@ -32,7 +32,105 @@ RHG_10:
   HyperND_steps: 100
   restart_alpha: 0.9
 
-  normalization: "ln" 
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
   aggregate: "mean"   
 
+RHG_3:
+  embedding_hidden: 64
+  MLP_num_layers: 2
+  MLP_hidden: 64
+  epochs: 300
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
 
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-4
+  HyperND_steps: 100
+  restart_alpha: 0.9
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "mean"   
+
+IMDB_dir_form:
+  embedding_hidden: 64
+  MLP_num_layers: 2
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.9
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "mean"  
+
+IMDB_dir_genre:
+  embedding_hidden: 64
+  MLP_num_layers: 2
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.9
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "mean"   
+
+stream_player:
+  embedding_hidden: 64
+  MLP_num_layers: 2
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.9
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "mean"  
+
+twitter_friend:
+  embedding_hidden: 64
+  MLP_num_layers: 2
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  hg_batch_size: 128
+
+  HyperND_ord: 1.0
+  HyperND_tol: 1.0e-3
+  HyperND_steps: 100
+  restart_alpha: 0.9
+
+  normalization: "ln" # NormLayer for MLP. ['bn', 'ln', 'None']
+  aggregate: "mean"   

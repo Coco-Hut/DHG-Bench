@@ -7,16 +7,15 @@ default:
   dropout: 0.2
   lr: 1.0e-2
   wd: 0
-
-  aggregate: "mean" # ['sum','mean']
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   deepset_input_norm: true
   GPR: false
   LearnMask: false
-  PMA: true 
+  PMA: true
   heads: 1 
   output_heads: 1
-  decoder_hidden: 64 
+  decoder_hidden: 64
   decoder_num_layers: 2
 
 cora:
@@ -28,15 +27,114 @@ cora:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0
-
-  aggregate: "mean" # ['sum','mean']
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   deepset_input_norm: true
   GPR: true
   LearnMask: true
-  PMA: true 
+  PMA: true
   heads: 1 
   output_heads: 1
-  decoder_hidden: 64 
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: true
+  PMA: true
+  heads: 1 
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: true
+  PMA: true
+  heads: 1 
+  output_heads: 1
+  decoder_hidden: 128
+  decoder_num_layers: 2
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  MLP_num_layers: 2
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: true
+  PMA: true
+  heads: 1 
+  output_heads: 1
+  decoder_hidden: 128
+  decoder_num_layers: 2
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: true
+  PMA: true
+  heads: 1 
+  output_heads: 1
+  decoder_hidden: 128
+  decoder_num_layers: 2
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: true
+  PMA: true
+  heads: 1 
+  output_heads: 1
+  decoder_hidden: 128
   decoder_num_layers: 2
 

@@ -6,9 +6,8 @@ default:
   dropout: 0.2
   lr: 1.0e-3
   wd: 0
-
   HyperGCN_mediators: true
-  HyperGCN_fast: true 
+  HyperGCN_fast: true
 
 cora:
   All_num_layers: 2
@@ -18,7 +17,62 @@ cora:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
 
-  HyperGCN_mediators: true 
-  HyperGCN_fast: true 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+coauthor_cora:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
 

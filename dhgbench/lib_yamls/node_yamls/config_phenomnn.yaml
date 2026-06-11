@@ -3,13 +3,12 @@ default:
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
-
   lam0: 10
   lam1: 10
-  alpha: 0.1 
-  prop_step: 16 
+  alpha: 0.1
+  prop_step: 16
   normalization: "ln"
   encoder_num_layers: 1
   decoder_hidden: 128
@@ -20,15 +19,253 @@ cora:
   MLP_hidden: 64
   epochs: 50
   dropout: 0.5
-  lr: 1.0e-2 
+  lr: 1.0e-2
   wd: 0.00001
-
   lam0: 10
   lam1: 10
-  alpha: 0.5 
-  prop_step: 16 
+  alpha: 0.5
+  prop_step: 16
   normalization: "ln"
   encoder_num_layers: 1
   decoder_hidden: 128
   decoder_num_layers: 1
 
+pubmed:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.2
+  prop_step: 16
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+coauthor_cora:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 16
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+coauthor_dblp:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 16
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+yelp:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 16
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+walmart-trips-100:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 16
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+actor:
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 4
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+amazon:
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 4
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+twitch:
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+pokec:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+german:
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 40
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+bail:
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 1.0e-5
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 2
+  normalization: "ln"
+  encoder_num_layers: 2
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+NTU2012:
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+ModelNet40:
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+zoo:
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  lam0: 10
+  lam1: 10
+  alpha: 0.0
+  prop_step: 8
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1
+
+house-committees-100:
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 4
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 128
+  decoder_num_layers: 1

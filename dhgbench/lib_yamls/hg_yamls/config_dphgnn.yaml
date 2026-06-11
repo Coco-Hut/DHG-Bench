@@ -4,33 +4,26 @@ default:
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
-
-  expan_dim: 128 
-
+  expan_dim: 128
   cg_num_layer: 2
   cg_MLP_hidden: 64
   cg_dropout: 0.5
-
   hg_num_layer: 2
   hg_MLP_hidden: 64
   hg_dropout: 0.5
   mediator: true
-
   sg_num_layer: 2
   sg_MLP_hidden: 64
-  sg_dropout: 0.5 
-
+  sg_dropout: 0.5
   taa_spatial_dim: 64
   taa_spectral_dim: 64
   num_heads: 1
-  chunk_size: -1 
-
+  chunk_size: -1
   spectral_embed_dim: 64
   fc_dim: 64
-
-  dff_MLP_hidden: 64 
+  dff_MLP_hidden: 64
   dff_num_layers: 1
   atten_neg_slope: 0.2
 
@@ -40,35 +33,182 @@ RHG_10:
   MLP_hidden: 64
   epochs: 200
   dropout: 0.2
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
   pooling: "max"
   early_stop: true
-
-  expan_dim: 128 
-
+  expan_dim: 128
   cg_num_layer: 2
   cg_MLP_hidden: 64
   cg_dropout: 0.5
-
   hg_num_layer: 2
   hg_MLP_hidden: 64
   hg_dropout: 0.5
   mediator: true
-
   sg_num_layer: 2
   sg_MLP_hidden: 64
-  sg_dropout: 0.5 
-
+  sg_dropout: 0.5
   taa_spatial_dim: 64
   taa_spectral_dim: 64
   num_heads: 1
-  chunk_size: -1 
-
+  chunk_size: -1
   spectral_embed_dim: 64
   fc_dim: 64
-
-  dff_MLP_hidden: 64 
+  dff_MLP_hidden: 64
   dff_num_layers: 1
   atten_neg_slope: 0.2
 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  expan_dim: 128
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  expan_dim: 128
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  expan_dim: 128
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  expan_dim: 128
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  expan_dim: 128
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2

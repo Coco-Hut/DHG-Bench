@@ -16,3 +16,146 @@ cora:
   lr: 1.0e-2
   wd: 0.01
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001 
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+walmart-trips-100:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+trivago:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.1
+  lr: 2.0e-2
+  wd: 0.0
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.0001
+
+amazon:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0.01
+
+pokec:
+  All_num_layers: 4
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0.0001
+
+german:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.00001
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+
+credit:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0

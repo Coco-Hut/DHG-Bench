@@ -1,0 +1,194 @@
+default:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 32
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 8
+  concat: true
+  use_bn: true
+
+cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 5.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 2.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 50
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+german:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+
+NTU2012:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: true
+
+ModelNet40:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: true
+
+zoo:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: true
+
+house-committees-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: true

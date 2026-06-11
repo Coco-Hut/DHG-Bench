@@ -3,13 +3,12 @@ default:
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
-
   lam0: 10
   lam1: 10
   alpha: 0.1 
-  prop_step: 16 
+  prop_step: 16
   normalization: "ln"
   encoder_num_layers: 1
   decoder_hidden: 128
@@ -20,15 +19,104 @@ RHG_10:
   MLP_hidden: 64
   epochs: 200
   dropout: 0.2
-  lr: 1.0e-2 
+  lr: 1.0e-2
   wd: 0.0
   pooling: "mean"
   early_stop: true
-
   lam0: 10
   lam1: 10
   alpha: 0.1
-  prop_step: 1 
+  prop_step: 1
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layers: 1
+
+RHG_3:
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 2
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layers: 1
+
+IMDB_dir_form:
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  lam0: 10
+  lam1: 10
+  alpha: 0.3
+  prop_step: 2
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layers: 1
+
+IMDB_dir_genre:
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 2
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layers: 1
+
+stream_player:
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  lam0: 10
+  lam1: 10
+  alpha: 0.3
+  prop_step: 2
+  normalization: "ln"
+  encoder_num_layers: 1
+  decoder_hidden: 64
+  decoder_num_layers: 1
+
+twitter_friend:
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  lam0: 10
+  lam1: 10
+  alpha: 0.1
+  prop_step: 2
   normalization: "ln"
   encoder_num_layers: 1
   decoder_hidden: 64

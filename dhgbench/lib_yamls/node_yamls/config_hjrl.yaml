@@ -32,3 +32,206 @@ cora:
   weight_init: 1  
   pos_weight_thresh: 1.0e4 
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.1 
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 1.0
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.1
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.0
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.1
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.0
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+german:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 200
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.0
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.0
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+NTU2012:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.01 
+  sample_ratio: false 
+  weight_init: 1 
+  pos_weight_thresh: 1.0e4 
+
+ModelNet40:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.01 
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.01 
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 
+
+house-committees-100:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0
+
+  activation: "relu"
+  neg_slope: 0.01
+
+  gamma: 0.0 
+  sample_ratio: false 
+  weight_init: 1  
+  pos_weight_thresh: 1.0e4 

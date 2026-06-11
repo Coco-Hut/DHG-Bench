@@ -1,14 +1,11 @@
 default:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
-  MLP_hidden: 128
   epochs: 100
   dropout: 0.5
   lr: 1.0e-3 
   wd: 0.0
   hidden_channels: 32 
-  num_layers: 2
   num_heads: 4 
   nb_random_features: 30
   use_bn: true
@@ -24,16 +21,13 @@ default:
   hefeat: mean
 
 cora:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
-  MLP_hidden: 128
+  hidden_channels: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
-  wd: 0.0
-  hidden_channels: 32 
-  num_layers: 2
+  lr: 5.0e-3 
+  wd: 0.001
   num_heads: 4 
   nb_random_features: 30
   use_bn: true
@@ -48,3 +42,368 @@ cora:
   pe: HEPEHtEPE
   hefeat: mean
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2 
+  wd: 0.001
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-3
+  wd: 0.001
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-4
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-4
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+trivago:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-4
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-3
+  wd: 0.001
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-3
+  wd: 0.001
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 128
+  hidden_channels: 32 
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  num_heads: 4 
+  nb_random_features: 30
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 32 
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+  num_heads: 4 
+  nb_random_features: 30
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+
+credit:
+  All_num_layers: 2
+  embedding_hidden: 128
+  hidden_channels: 32 
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+  num_heads: 4 
+  nb_random_features: 30
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: true
+  pe: HEPEHtEPE
+  hefeat: mean
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  hidden_channels: 512
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  hidden_channels: 512
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+zoo:
+  All_num_layers: 1
+  embedding_hidden: 128
+  hidden_channels: 256
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-4
+  wd: 0.0
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  hidden_channels: 512
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.01
+  num_heads: 4 
+  nb_random_features: 30
+
+  use_bn: true
+  use_gumbel: true
+  use_residual: true
+  use_act: true
+  use_jk: true
+  nb_gumbel_sample: 10
+  rb_order: 0
+  rb_trans: sigmoid 
+  use_edge_loss: false
+  pe: HEPEHtEPE
+  hefeat: mean

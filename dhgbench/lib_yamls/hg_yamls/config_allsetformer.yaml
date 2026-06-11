@@ -7,18 +7,17 @@ default:
   dropout: 0.2
   lr: 1.0e-2
   wd: 0
-
-  aggregate: "mean" # ['sum','mean']
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   deepset_input_norm: true
   GPR: false
   LearnMask: false
-  PMA: true 
-  heads: 1 
+  PMA: true
+  heads: 1
   output_heads: 1
-  decoder_hidden: 64 
+  decoder_hidden: 64
   decoder_num_layers: 2
-  
+
 RHG_10:
   All_num_layers: 1
   embedding_hidden: 64
@@ -30,15 +29,123 @@ RHG_10:
   wd: 0
   pooling: "mean"
   early_stop: true
-
-  aggregate: "mean" # ['sum','mean']
-  normalization: "ln" # NormLayer for MLP. ['bn','ln','None']
+  aggregate: "mean"
+  normalization: "ln"
   deepset_input_norm: true
   GPR: true
   LearnMask: false
-  PMA: true 
-  heads: 1 
+  PMA: true
+  heads: 1
   output_heads: 1
-  decoder_hidden: 64 
+  decoder_hidden: 64
   decoder_num_layers: 2
 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: false
+  PMA: true
+  heads: 1
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: false
+  PMA: true
+  heads: 1
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: false
+  PMA: true
+  heads: 1
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: false
+  PMA: true
+  heads: 1
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  MLP_num_layers: 2
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+  aggregate: "mean"
+  normalization: "ln"
+  deepset_input_norm: true
+  GPR: true
+  LearnMask: false
+  PMA: true
+  heads: 1
+  output_heads: 1
+  decoder_hidden: 64
+  decoder_num_layers: 2

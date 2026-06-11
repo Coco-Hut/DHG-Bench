@@ -64,3 +64,398 @@ cora:
   ehnn_att0_dropout: 0.0
   ehnn_att1_dropout: 0.0
 
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 8
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-3
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 8
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+walmart-trips-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 500
+  dropout: 0.2
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+yelp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 500
+  dropout: 0.2
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.2
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+amazon:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 140
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+twitch:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.1
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 180
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 0
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 30
+  dropout: 0.0
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 8
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+bail:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.2
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0
+
+credit:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.2
+  normalization: "ln"
+  clip_grad: false
+  clip_thresh: 5.0
+  lr: 1.0e-3
+  wd: 1.0e-5
+
+  chunk_size: 1000
+  ehnn_ff_layers: 2
+  ehnn_qk_channel: 64
+  ehnn_n_heads: 4
+  ehnn_inner_channel: 64
+  ehnn_hidden_channel: 64
+
+  ehnn_type: "linear" # ['linear', 'transformer']
+  ehnn_pe_dim: 64
+  ehnn_hyper_dim: 64
+  ehnn_hyper_layers: 2
+  ehnn_hyper_dropout: 0.2
+
+  ehnn_force_broadcast: "False" # ehnn_force_broadcast / ['False', 'True']
+  ehnn_input_dropout: 0.0
+  ehnn_mlp_classifier: "True"
+  decoder_hidden: 64
+  decoder_num_layers: 2
+  ehnn_att0_dropout: 0.0
+  ehnn_att1_dropout: 0.0

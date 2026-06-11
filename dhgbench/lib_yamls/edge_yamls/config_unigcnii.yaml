@@ -1,7 +1,7 @@
 default:
   All_num_layers: 2
   MLP_hidden: 256
-  epochs: 50 # 62.82+-0.13
+  epochs: 50 
   lr: 1.0e-3
   wd: 0.0
   dropout: 0.8
@@ -16,6 +16,36 @@ default:
 cora:
   All_num_layers: 2
   MLP_hidden: 256
+  epochs: 50 
+  lr: 1.0e-3
+  wd: 0.0
+  dropout: 0.8
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.3
+  lamda: 0.8
+  reduce: 'mean'
+
+pubmed:
+  All_num_layers: 2
+  MLP_hidden: 128
+  epochs: 100 # 62.82+-0.13
+  lr: 1.0e-3
+  wd: 0.0
+  dropout: 0.0
+
+  input_drop: 0.3
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.5
+  lamda: 0.5
+  reduce: 'mean'
+
+coauthor_cora:
+  All_num_layers: 2
+  MLP_hidden: 256
   epochs: 50 # 62.82+-0.13
   lr: 1.0e-3
   wd: 0.0
@@ -28,4 +58,47 @@ cora:
   lamda: 0.8
   reduce: 'mean'
 
+coauthor_dblp:
+  All_num_layers: 2
+  MLP_hidden: 128
+  epochs: 100 
+  lr: 1.0e-3
+  wd: 0.0
+  dropout: 0.5
 
+  input_drop: 0.3
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.2
+  lamda: 0.3
+  reduce: 'mean'
+
+actor:
+  All_num_layers: 1
+  MLP_hidden: 256
+  epochs: 200 
+  lr: 1.0e-2
+  wd: 0.0
+  dropout: 0.5
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 1.0
+  lamda: 0.5
+  reduce: 'mean'
+
+pokec:
+  All_num_layers: 1
+  MLP_hidden: 128
+  epochs: 100 
+  lr: 1.0e-3
+  wd: 0.0
+  dropout: 0.0
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.5
+  lamda: 0.5
+  reduce: 'mean'

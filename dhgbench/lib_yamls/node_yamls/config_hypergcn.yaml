@@ -6,9 +6,8 @@ default:
   dropout: 0.2
   lr: 1.0e-3
   wd: 0
-
   HyperGCN_mediators: true
-  HyperGCN_fast: true 
+  HyperGCN_fast: true
 
 cora:
   All_num_layers: 2
@@ -18,7 +17,193 @@ cora:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
 
-  HyperGCN_mediators: true 
-  HyperGCN_fast: true 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
 
+coauthor_cora:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+yelp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 500
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: false
+  HyperGCN_fast: true
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+trivago:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 800
+  dropout: 0.5
+  lr: 3.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+german:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+credit:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+NTU2012:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+ModelNet40:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true
+
+house-committees-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  HyperGCN_mediators: true
+  HyperGCN_fast: true

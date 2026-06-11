@@ -6,9 +6,8 @@ default:
   dropout: 0.2
   lr: 1.0e-3
   wd: 0
-
   HyperGCN_mediators: true
-  HyperGCN_fast: true 
+  HyperGCN_fast: true
 
 RHG_10:
   All_num_layers: 1
@@ -20,6 +19,70 @@ RHG_10:
   wd: 0.0
   pooling: "max"
   early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false
 
-  HyperGCN_mediators: true 
-  HyperGCN_fast: false 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "max"
+  early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0.0
+  pooling: "mean"
+  early_stop: true
+  HyperGCN_mediators: true
+  HyperGCN_fast: false

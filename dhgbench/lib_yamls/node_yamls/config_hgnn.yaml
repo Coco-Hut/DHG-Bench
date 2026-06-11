@@ -1,20 +1,189 @@
 default:
-  HCHA_symdegnorm: false 
+  HCHA_symdegnorm: false
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
 
 cora:
-  HCHA_symdegnorm: false 
+  HCHA_symdegnorm: false
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
 
+pubmed:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+coauthor_cora:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+
+coauthor_dblp:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+yelp:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 1000
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+walmart-trips-100:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+trivago:
+  HCHA_symdegnorm: false
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 4.0e-2
+  wd: 0.0
+
+actor:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+amazon:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+
+twitch:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.0
+  lr: 1.0e-2
+  wd: 0.0
+
+pokec:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.0
+  lr: 1.0e-2
+  wd: 0.0
+
+german:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+
+bail:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+
+credit:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+NTU2012:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+ModelNet40:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+zoo:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+house-committees-100:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 800
+  dropout: 0.8
+  lr: 5.0e-1
+  wd: 0.0

@@ -1,5 +1,4 @@
 default:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
@@ -7,119 +6,119 @@ default:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0.0
+  use_bn: true
 
 cora:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 100
-  dropout: 0.5
-  lr: 1.0e-3
-  wd: 0.0
-
-pubmed:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 100
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-coauthor_cora:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 100
-  dropout: 0.5
-  lr: 1.0e-3
-  wd: 0.0
-
-coauthor_dblp:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 50
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-yelp:
-  HCHA_symdegnorm: true
-  All_num_layers: 1
-  embedding_hidden: 128
-  MLP_hidden: 64
-  epochs: 500
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-walmart-trips-100:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 200
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-trivago:
-  HCHA_symdegnorm: true
-  All_num_layers: 3
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 500
-  dropout: 0.5
-  lr: 4.0e-2
-  wd: 0.0
-
-actor:
-  HCHA_symdegnorm: true
-  All_num_layers: 1
-  embedding_hidden: 128
-  MLP_hidden: 64
-  epochs: 400
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-amazon:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 256
-  epochs: 200
-  dropout: 0.5
-  lr: 5.0e-3
+  epochs: 100
+  dropout: 0.0
+  lr: 1.0e-3
   wd: 0.0
+  use_bn: false
 
-pokec:
-  HCHA_symdegnorm: true
+pubmed:
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.0
-  lr: 5.0e-3
-  wd: 0.0
-
-twitch:
-  HCHA_symdegnorm: true
-  All_num_layers: 1
-  embedding_hidden: 128
-  MLP_hidden: 64
-  epochs: 200
-  dropout: 0.0
+  epochs: 100
+  dropout: 0.5
   lr: 1.0e-2
   wd: 0.0
+  use_bn: false
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  use_bn: false
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  use_bn: false
+
+yelp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  use_bn: false
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  use_bn: false
+
+trivago:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 1000
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  use_bn: false
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-2
+  wd: 0.0
+  use_bn: false
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-2
+  wd: 0.0
+  use_bn: false
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-2
+  wd: 0.0
+  use_bn: false
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.5
+  lr: 5.0e-2
+  wd: 0.0
+  use_bn: false
 
 german:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
@@ -127,63 +126,44 @@ german:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0.0
-
-bail:
-  HCHA_symdegnorm: true
-  All_num_layers: 3
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 100
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-credit:
-  HCHA_symdegnorm: true
-  All_num_layers: 2
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 100
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
+  use_bn: false
 
 NTU2012:
-  HCHA_symdegnorm: true
-  All_num_layers: 1
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 200
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-ModelNet40:
-  HCHA_symdegnorm: true
-  All_num_layers: 1
-  embedding_hidden: 128
-  MLP_hidden: 128
-  epochs: 200
-  dropout: 0.5
-  lr: 1.0e-2
-  wd: 0.0
-
-zoo:
-  HCHA_symdegnorm: true
   All_num_layers: 2
   embedding_hidden: 128
-  MLP_hidden: 64
+  MLP_hidden: 256
   epochs: 300
-  dropout: 0.5
-  lr: 1.0e-2
+  dropout: 0.0
+  lr: 1.0e-3
   wd: 0.0
+  use_bn: true
 
-house-committees-100:
-  HCHA_symdegnorm: true
+ModelNet40:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.0
+  lr: 1.0e-3
+  wd: 0.0
+  use_bn: true
+
+zoo:
   All_num_layers: 1
   embedding_hidden: 128
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.8
-  lr: 1.0e-1
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
   wd: 0.0
+  use_bn: true
+
+house-committees-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.0
+  lr: 1.0e-3
+  wd: 0.0
+  use_bn: false

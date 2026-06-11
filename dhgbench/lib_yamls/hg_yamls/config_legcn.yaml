@@ -18,3 +18,57 @@ RHG_10:
   pooling: "mean"
   early_stop: true
 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2 
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+IMDB_dir_genre:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2 
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+stream_player:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0
+  pooling: "mean"
+  early_stop: true

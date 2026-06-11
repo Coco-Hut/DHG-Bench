@@ -1,20 +1,70 @@
 default:
-  HCHA_symdegnorm: false 
+  HCHA_symdegnorm: false
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
   wd: 0.0
 
 cora:
-  HCHA_symdegnorm: false 
+  HCHA_symdegnorm: false
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 
+  lr: 1.0e-3
+  wd: 0.0
+
+pubmed:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+coauthor_cora:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+
+coauthor_dblp:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+actor:
+  HCHA_symdegnorm: false
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+pokec:
+  HCHA_symdegnorm: false
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.0
+  lr: 1.0e-2
   wd: 0.0
 

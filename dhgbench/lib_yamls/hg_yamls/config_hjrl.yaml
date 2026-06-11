@@ -6,14 +6,12 @@ default:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0
-
   activation: "relu"
   neg_slope: 0.01
-
-  gamma: 0.1 
-  sample_ratio: 0.1 
-  weight_init: 1  
-  pos_weight_thresh: 1.0e4 
+  gamma: 0.1
+  sample_ratio: 0.1
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
 
 RHG_10:
   All_num_layers: 1
@@ -25,12 +23,94 @@ RHG_10:
   wd: 0
   pooling: "max"
   early_stop: true
-
   activation: "relu"
   neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
 
-  gamma: 0 
-  sample_ratio: false 
-  weight_init: 1  
-  pos_weight_thresh: 1.0e4 
+RHG_3:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "max"
+  early_stop: true
+  activation: "relu"
+  neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
 
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "max"
+  early_stop: true
+  activation: "relu"
+  neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
+
+IMDB_dir_genre:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "max"
+  early_stop: true
+  activation: "relu"
+  neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
+
+stream_player:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  pooling: "max"
+  early_stop: true
+  activation: "relu"
+  neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3
+  wd: 0
+  pooling: "max"
+  early_stop: true
+  activation: "relu"
+  neg_slope: 0.01
+  gamma: 0
+  sample_ratio: false
+  weight_init: 1
+  pos_weight_thresh: 1.0e4

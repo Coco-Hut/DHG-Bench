@@ -6,31 +6,24 @@ default:
   dropout: 0.5
   lr: 1.0e-3
   wd: 0.0
-
-  expan_dim: 128 
-
+  expan_dim: 128
   cg_num_layer: 2
   cg_MLP_hidden: 64
   cg_dropout: 0.5
-
   hg_num_layer: 2
   hg_MLP_hidden: 64
   hg_dropout: 0.5
   mediator: true
-
   sg_num_layer: 2
   sg_MLP_hidden: 64
-  sg_dropout: 0.5 
-
+  sg_dropout: 0.5
   taa_spatial_dim: 64
   taa_spectral_dim: 64
   num_heads: 1
-  chunk_size: -1 
-
+  chunk_size: -1
   spectral_embed_dim: 64
   fc_dim: 64
-
-  dff_MLP_hidden: 64 
+  dff_MLP_hidden: 64
   dff_num_layers: 1
   atten_neg_slope: 0.2
 
@@ -40,33 +33,403 @@ cora:
   MLP_hidden: 256
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-2 
+  lr: 1.0e-2
   wd: 0.0
-
-  expan_dim: 256 
-
+  expan_dim: 256
   cg_num_layer: 2
   cg_MLP_hidden: 64
   cg_dropout: 0.5
-
   hg_num_layer: 2
   hg_MLP_hidden: 64
   hg_dropout: 0.5
   mediator: true
-
   sg_num_layer: 2
   sg_MLP_hidden: 64
-  sg_dropout: 0.5 
-
+  sg_dropout: 0.5
   taa_spatial_dim: 64
   taa_spectral_dim: 64
   num_heads: 1
-  chunk_size: -1 
-
+  chunk_size: -1
   spectral_embed_dim: 64
   fc_dim: 64
-
-  dff_MLP_hidden: 64 
+  dff_MLP_hidden: 64
   dff_num_layers: 1
   atten_neg_slope: 0.2
 
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+amazon:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+twitch:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 80
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 2
+  atten_neg_slope: 0.2
+
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 20
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 2
+  atten_neg_slope: 0.2
+
+bail:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+  expan_dim: 256
+  cg_num_layer: 2
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 2
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 2
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0
+  expan_dim: 128
+  cg_num_layer: 1
+  cg_MLP_hidden: 64
+  cg_dropout: 0.5
+  hg_num_layer: 1
+  hg_MLP_hidden: 64
+  hg_dropout: 0.5
+  mediator: true
+  sg_num_layer: 1
+  sg_MLP_hidden: 64
+  sg_dropout: 0.5
+  taa_spatial_dim: 64
+  taa_spectral_dim: 64
+  num_heads: 1
+  chunk_size: -1
+  spectral_embed_dim: 64
+  fc_dim: 64
+  dff_MLP_hidden: 64
+  dff_num_layers: 1
+  atten_neg_slope: 0.2

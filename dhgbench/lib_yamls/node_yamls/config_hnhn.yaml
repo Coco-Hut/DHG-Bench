@@ -24,3 +24,223 @@ cora:
   HNHN_beta: -0.5
   HNHN_nonlinear_inbetween: true
 
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 512
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: false
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.00001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+yelp:
+  All_num_layers: 3
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+walmart-trips-100:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+trivago:
+  All_num_layers: 2
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 1000
+  dropout: 0.5
+  lr: 3.0e-2
+  wd: 0.0
+
+  HNHN_alpha: 1.0
+  HNHN_beta: 1.5
+  HNHN_nonlinear_inbetween: true
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+amazon:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+twitch:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+german:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+bail:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+credit:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 400
+  dropout: 0.8
+  lr: 1.0e-1
+  wd: 0.0
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 400
+  dropout: 0.5
+  lr: 1.0e-1
+  wd: 0.0
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+zoo:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0.0
+
+  HNHN_alpha: 1.5
+  HNHN_beta: 0.5
+  HNHN_nonlinear_inbetween: true
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true

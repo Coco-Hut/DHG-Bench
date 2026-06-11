@@ -4,20 +4,225 @@ default:
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 # 科学计数法表示用浮点数
+  lr: 1.0e-3 
   wd: 0.0
 
   normalization: "ln"
   InputNorm: false
 
 cora:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+pubmed:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+coauthor_dblp:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+yelp:
+  All_num_layers: 3
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+trivago:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 500
+  dropout: 0.8
+  lr: 5.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.8
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.0
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+german:
   All_num_layers: 2
   embedding_hidden: 128
   MLP_hidden: 128
   epochs: 100
   dropout: 0.5
-  lr: 1.0e-3 # 科学计数法表示用浮点数
+  lr: 1.0e-3 
   wd: 0.0
 
   normalization: "ln"
   InputNorm: false
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+credit:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+NTU2012:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 400
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+ModelNet40:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 400
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+zoo:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 400
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+
+house-committees-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 400
+  dropout: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+
+  normalization: "ln"
+  InputNorm: false
+

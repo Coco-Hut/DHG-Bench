@@ -24,3 +24,67 @@ cora:
   HNHN_beta: -0.5
   HNHN_nonlinear_inbetween: true
 
+pubmed:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 512
+  epochs: 50
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: false
+
+coauthor_cora:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.00001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+coauthor_dblp:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+actor:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 300
+  dropout: 0.5
+  lr: 1.0e-3
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true
+
+pokec:
+  All_num_layers: 1
+  embedding_hidden: 256
+  MLP_hidden: 128
+  epochs: 200
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001
+
+  HNHN_alpha: -1.5
+  HNHN_beta: -0.5
+  HNHN_nonlinear_inbetween: true

@@ -22,3 +22,206 @@ cora:
   wd: 0.0
   normalization: "ln"
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 200
+  dropout: 0.7
+  alpha: 0.05
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 60
+  dropout: 0.7
+  alpha: 0.3
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 50
+  dropout: 0.8
+  alpha: 0.3
+  lr: 6.0e-4 
+  wd: 0.0
+  normalization: "ln"
+
+yelp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  MLP_num_layers: 3
+  epochs: 500
+  dropout: 0.2
+  alpha: 0.0
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+walmart-trips-100:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 100
+  dropout: 0.7
+  alpha: 0.0
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+trivago:
+  All_num_layers: 128
+  embedding_hidden: 128
+  MLP_hidden: 64
+  MLP_num_layers: 3
+  epochs: 1000
+  dropout: 0.2
+  alpha: 0.0
+  lr: 4.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 100
+  dropout: 0.1
+  alpha: 1.0
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+amazon:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  MLP_num_layers: 3
+  epochs: 190
+  dropout: 0.5
+  alpha: 0.1
+  lr: 1.0e-2 
+  wd: 0.0
+  normalization: "ln"
+
+twitch:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 150
+  dropout: 0.5
+  alpha: 0.1
+  lr: 1.0e-2 
+  wd: 0.0001
+  normalization: "ln"
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 150
+  dropout: 0.5
+  alpha: 0.9
+  lr: 1.0e-2 
+  wd: 0.0001
+  normalization: "ln"
+
+german:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 20
+  dropout: 0.9
+  alpha: 0.1
+  lr: 1.0e-3 
+  wd: 0.001
+  normalization: "ln"
+
+bail:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 500
+  dropout: 0.9
+  alpha: 0.1
+  lr: 1.0e-3 
+  wd: 0.001
+  normalization: "ln"
+
+credit:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 300
+  dropout: 0.5
+  alpha: 0.8
+  lr: 1.0e-2 
+  wd: 0.0001
+  normalization: "ln"
+
+NTU2012:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.7
+  alpha: 0.1
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+ModelNet40:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.7
+  alpha: 0.1
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+zoo:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.5
+  alpha: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+house-committees-100:
+  All_num_layers: 1
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 2
+  epochs: 300
+  dropout: 0.5
+  alpha: 0.8
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"

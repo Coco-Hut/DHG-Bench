@@ -16,3 +16,47 @@ cora:
   lr: 1.0e-2
   wd: 0.01
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-2
+  wd: 0.0001 
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.01
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 128
+  epochs: 100
+  dropout: 0.1
+  lr: 1.0e-2
+  wd: 0.0001
+
+pokec:
+  All_num_layers: 4
+  embedding_hidden: 128
+  MLP_hidden: 256
+  epochs: 200
+  dropout: 0.1
+  lr: 1.0e-3
+  wd: 0.0001

@@ -7,90 +7,83 @@ default:
   lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
+  use_bn: true
 
 RHG_3:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.8
-  lr: 1.0e-2 
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
+  use_bn: false
   pooling: "mean"
   early_stop: true
 
 RHG_10:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
   epochs: 200
-  dropout: 0.8
-  lr: 1.0e-2 
+  dropout: 0.2
+  lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
+  use_bn: false
   pooling: "mean"
   early_stop: true
 
 IMDB_dir_form:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
-  epochs: 100
-  dropout: 0.8
-  lr: 1.0e-2 
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
+  use_bn: false
   pooling: "mean"
   early_stop: true
 
 IMDB_dir_genre:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.8
+  epochs: 100
+  dropout: 0.2
   lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
-  pooling: "mean"
+  use_bn: false
+  pooling: "max"
   early_stop: true
-
 
 stream_player:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.8
+  epochs: 100
+  dropout: 0.2
   lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
-  pooling: "mean"
+  use_bn: false
+  pooling: "max"
   early_stop: true
+
 
 twitter_friend:
   All_num_layers: 2
-  embedding_hidden: 128
+  embedding_hidden: 64
   MLP_hidden: 128
-  epochs: 200
-  dropout: 0.8
+  epochs: 100
+  dropout: 0.2
   lr: 1.0e-3 
   wd: 0.0
 
-  normalization: "ln"
-  InputNorm: false
-  pooling: "mean"
+  use_bn: false
+  pooling: "max"
   early_stop: true

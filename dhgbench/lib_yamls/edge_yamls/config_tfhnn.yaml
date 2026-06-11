@@ -6,7 +6,7 @@ default:
   epochs: 100
   dropout: 0.5
   alpha: 0.5
-  lr: 1.0e-3
+  lr: 1.0e-3 
   wd: 0.0
   normalization: "ln"
 
@@ -22,3 +22,62 @@ cora:
   wd: 0.0
   normalization: "ln"
 
+pubmed:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 200
+  dropout: 0.7
+  alpha: 0.05
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+coauthor_cora:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 60
+  dropout: 0.7
+  alpha: 0.3
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+coauthor_dblp:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 50
+  dropout: 0.8
+  alpha: 0.3
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+actor:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 512
+  MLP_num_layers: 3
+  epochs: 100
+  dropout: 0.1
+  alpha: 1.0
+  lr: 1.0e-3 
+  wd: 0.0
+  normalization: "ln"
+
+pokec:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 1024
+  MLP_num_layers: 3
+  epochs: 150
+  dropout: 0.5
+  alpha: 0.9
+  lr: 1.0e-2 
+  wd: 0.0001
+  normalization: "ln"

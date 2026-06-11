@@ -54,3 +54,74 @@ RHG_3:
   lamda: 0.8
   reduce: 'mean'
 
+IMDB_dir_form:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "max"
+  early_stop: true
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.8
+  lamda: 0.8
+  reduce: 'mean'
+
+IMDB_dir_genre:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.1
+  lamda: 0.8
+  reduce: 'mean'
+
+stream_player:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "mean"
+  early_stop: true
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.1
+  lamda: 0.8
+  reduce: 'mean'
+
+twitter_friend:
+  All_num_layers: 1
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-2
+  wd: 0
+  pooling: "max"
+  early_stop: true
+
+  input_drop: 0.5
+  activation: "prelu" # activation: ['relu', 'prelu']
+  use_norm: False
+  restart_alpha: 0.8
+  lamda: 0.8
+  reduce: 'mean'

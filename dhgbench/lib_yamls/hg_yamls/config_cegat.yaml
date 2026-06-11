@@ -1,0 +1,100 @@
+default:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 32
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 8
+  concat: true
+  use_bn: true
+
+RHG_3:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+  pooling: "mean"
+  early_stop: true
+
+RHG_10:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+  pooling: "mean"
+  early_stop: true
+
+IMDB_dir_form:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 200
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+  pooling: "max"
+  early_stop: true
+
+IMDB_dir_genre:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+  pooling: "max"
+  early_stop: true
+
+stream_player:
+  All_num_layers: 2
+  embedding_hidden: 64
+  MLP_hidden: 64
+  epochs: 100
+  dropout: 0.2
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 4
+  concat: false
+  use_bn: false
+  pooling: "max"
+  early_stop: true
+
+twitter_friend:
+  All_num_layers: 2
+  embedding_hidden: 128
+  MLP_hidden: 32
+  epochs: 100
+  dropout: 0.5
+  lr: 1.0e-3 
+  wd: 0.0
+
+  heads: 8
+  concat: true
+  use_bn: true
