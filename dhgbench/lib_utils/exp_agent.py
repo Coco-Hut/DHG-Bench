@@ -236,7 +236,7 @@ def parse_model(args, data):
             model = SetGNN(data.num_features, num_targets, args, data.norm)
         else:
             model = SetGNN(data.num_features, num_targets, args)
-    elif args.method in ['HGNN','HCHA']:
+    elif args.method in ['HGNN','HCHA','HCHA_Paper']:
         model = HCHA(data.num_features, num_targets, args)
     elif args.method == 'HNHN':
         model = HNHN(data.num_features, num_targets, args)
@@ -264,7 +264,7 @@ def parse_model(args, data):
         model = PhenomNNS(data.num_features,num_targets,args)
     elif args.method == 'PhenomNN':
         model = PhenomNN(data.num_features,num_targets,args)
-    elif args.method == 'DPHGNN':
+    elif args.method in ['DPHGNN','DPHGNN_Paper']:
         model = DPHGNN(data.num_features,num_targets,args)
     elif args.method == 'PlainUnigencoder':
         model = PlainUnigencoder(data.num_features, num_targets, args)
@@ -272,7 +272,7 @@ def parse_model(args, data):
         model = TFHNN(data.num_features,num_targets,args)
     elif args.method == 'MLP':
         model = PlainMLP(data.num_features,num_targets,args)
-    elif args.method == 'HyperGT':
+    elif args.method in ['HyperGT','HyperGT_Paper']:
         model = HyperGT(data.num_features,num_targets,args)
     elif args.method == 'CEGCN':
         model = CEGCN(data.num_features,num_targets,args)

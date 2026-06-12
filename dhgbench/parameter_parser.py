@@ -12,6 +12,11 @@ def update_from_dict(obj, updates):
 
 # recommend hyperparameters here
 def method_config(args):
+    config_method = {
+        'HCHA_Paper': 'hcha',
+        'HyperGT_Paper': 'hypergt',
+        'DPHGNN_Paper': 'dphgnn',
+    }.get(args.method, args.method.lower())
 
     if args.is_default:
         config_name = 'default'
@@ -20,8 +25,24 @@ def method_config(args):
     try:
         # conf_dt = json.load(open(f"{os.path.join('./', 'lib_configs', args.method.lower(), config_name)}.json")) 
         task_prefix=args.task_type.split('_')[0]+'_yamls'
-        conf_dt = yaml.safe_load(open(f"{os.path.join('./', 'lib_yamls', task_prefix,'config_'+args.method.lower())}.yaml"))[config_name] 
+        conf_dt = yaml.safe_load(open(f"{os.path.join('./', 'lib_yamls', task_prefix,'config_'+config_method)}.yaml"))[config_name]
         update_from_dict(args, conf_dt)
+        if args.method == 'HCHA_Paper':
+            args.HCHA_use_attention = True
+            args.HCHA_symdegnorm = False
+            args.HCHA_heads = 8
+            args.HCHA_output_heads = 1
+            args.HCHA_attention_mode = 'edge'
+        if args.method == 'HyperGT_Paper':
+            args.pe = 'HEPEHtEPE'
+            args.hefeat = 'mean'
+            args.use_edge_loss = True
+            args.rb_order = 0
+            args.rb_trans = 'sigmoid'
+            args.use_gumbel = True
+        if args.method == 'DPHGNN_Paper':
+            args.DPHGNN_dff_mode = 'paper'
+            args.mediator = True
     except:
         print('No config file found or error in json format, please use method_config(args)')
 
@@ -61,7 +82,7 @@ def set_task_args(args):
 
         if args.method in ['HyperND']:
             args.add_self_loop=True 
-        elif args.method in ['DPHGNN','LEGCN','PhenomNN','HJRL','TFHNN','HNHN','AllSetformer'] and args.dname in ['pokec']:
+        elif args.method in ['DPHGNN','DPHGNN_Paper','LEGCN','PhenomNN','HJRL','TFHNN','HNHN','AllSetformer'] and args.dname in ['pokec']:
             args.add_self_loop=True
         elif args.method in ['TMPHN']:
             if args.dname in ['pokec']:
@@ -161,6 +182,12 @@ def parameter_parser():
 
     # Choose std for synthetic feature noise
     parser.add_argument('--feature_noise', default='0.6', type=str)
+    parser.add_argument('--HCHA_use_attention', default=False, type=str2bool)
+    parser.add_argument('--HCHA_heads', default=8, type=int)
+    parser.add_argument('--HCHA_output_heads', default=1, type=int)
+    parser.add_argument('--HCHA_attention_mode', default='edge', choices=['node', 'edge'])
+    parser.add_argument('--HCHA_negative_slope', default=0.2, type=float)
+    parser.add_argument('--DPHGNN_dff_mode', default='attention', choices=['attention', 'paper'])
     
     parser.set_defaults(add_self_loop=False)
     parser.set_defaults(exclude_self=False)
