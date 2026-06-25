@@ -124,7 +124,7 @@ def parameter_parser():
     parser.add_argument('--display_step', type=int, default=20)
     parser.add_argument('--eval_verbose',default=True)
     
-    parser.add_argument('--embedding_mode',default=True,type=bool) 
+    parser.add_argument('--embedding_mode', default=False, type=str2bool)
     parser.add_argument('--embedding_hidden',default=128,type=int) 
     
     parser.add_argument('--normtype', default='all_one') # ['all_one','deg_half_sym']
