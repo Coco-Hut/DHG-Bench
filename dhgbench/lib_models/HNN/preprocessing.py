@@ -591,13 +591,15 @@ def line_expansion(data,args):
     hyperedge_index=copy.deepcopy(data.hyperedge_index)
     hyperedge_index = hyperedge_index.to('cpu')
     V, E = hyperedge_index
-    E = E + V.max() # [V | E]
+    num_nodes = int(data.num_nodes)
+    E = E + num_nodes # [V | E]
     num_ne_pairs = hyperedge_index.shape[1]
-    V_plus_E = E.max() + 1
-    L1 = torch.stack([torch.arange(V.shape[0], device=V.device), V], -1)
-    L2 = torch.stack([torch.arange(E.shape[0], device=E.device), E], -1)
-    L = torch.cat([L1, L2], -1) # [2, |V| + |E|]
-    L_T = torch.stack([L[1], L[0]], 0) # [2, |V| + |E|]
+    V_plus_E = int(E.max().item()) + 1 if E.numel() > 0 else num_nodes
+    pair_ids = torch.arange(num_ne_pairs, device=V.device)
+    L1 = torch.stack([pair_ids, V], 0)
+    L2 = torch.stack([pair_ids, E], 0)
+    L = torch.cat([L1, L2], 1) # [2, 2 * |V-E incidence pairs|]
+    L_T = torch.stack([L[1], L[0]], 0) # [2, 2 * |V-E incidence pairs|]
     ones = torch.ones(L.shape[1], device=L.device)
     adj, value = torch_sparse.spspmm(L, ones, L_T, ones, num_ne_pairs, V_plus_E, num_ne_pairs, coalesced=True)
     adj, value = torch_sparse.coalesce(adj, value, num_ne_pairs, num_ne_pairs, op="add")
