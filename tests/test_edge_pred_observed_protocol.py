@@ -24,6 +24,7 @@ from lib_dataset.edge_loaders import (  # noqa: E402
 )
 from lib_dataset.preprocessing import data_processing  # noqa: E402
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
+from parameter_parser import set_task_args  # noqa: E402
 
 
 def make_hyperedge_index(hyperedges):
@@ -34,6 +35,20 @@ def make_hyperedge_index(hyperedges):
             rows.append(node)
             cols.append(edge_id)
     return torch.tensor([rows, cols], dtype=torch.long)
+
+
+def make_raw_preprocessing_data():
+    node_to_edge = torch.tensor(
+        [[0, 1, 1, 2, 3], [4, 4, 5, 5, 5]],
+        dtype=torch.long,
+    )
+    return SimpleNamespace(
+        x=torch.ones(4, 2),
+        y=torch.zeros(4, dtype=torch.long),
+        edge_index=torch.cat([node_to_edge, node_to_edge.flip(0)], dim=1),
+        n_x=torch.tensor([4]),
+        num_hyperedges=torch.tensor([2]),
+    )
 
 
 class ObservedEdgePredictionProtocolTest(unittest.TestCase):
@@ -170,17 +185,6 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertEqual(train_nodes, all_nodes)
 
     def test_data_processing_preserves_hyperedges_before_model_self_loops(self):
-        node_to_edge = torch.tensor(
-            [[0, 1, 1, 2, 3], [4, 4, 5, 5, 5]],
-            dtype=torch.long,
-        )
-        raw_data = SimpleNamespace(
-            x=torch.ones(4, 2),
-            y=torch.zeros(4, dtype=torch.long),
-            edge_index=torch.cat([node_to_edge, node_to_edge.flip(0)], dim=1),
-            n_x=torch.tensor([4]),
-            num_hyperedges=torch.tensor([2]),
-        )
         data = data_processing(
             SimpleNamespace(
                 method="HyperND",
@@ -188,8 +192,10 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 exclude_self=False,
                 normtype="all_one",
                 device="cpu",
+                task_type="edge_pred",
+                edge_pred_protocol="observed",
             ),
-            SimpleNamespace(data=raw_data, sens=None),
+            SimpleNamespace(data=make_raw_preprocessing_data(), sens=None),
         )
 
         canonical_hyperedges = set(
@@ -205,6 +211,77 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             model_hyperedges,
             canonical_hyperedges | {frozenset([node]) for node in range(4)},
         )
+        self.assertEqual(data.canonical_hyperedge_index.device.type, "cpu")
+
+    def test_unrelated_tasks_do_not_preserve_canonical_hyperedges(self):
+        configurations = [
+            ("node_cls", "legacy"),
+            ("edge_pred", "legacy"),
+        ]
+        for task_type, edge_pred_protocol in configurations:
+            with self.subTest(
+                task_type=task_type,
+                edge_pred_protocol=edge_pred_protocol,
+            ):
+                data = data_processing(
+                    SimpleNamespace(
+                        method="HGNN",
+                        add_self_loop=False,
+                        exclude_self=False,
+                        normtype="all_one",
+                        device="cpu",
+                        task_type=task_type,
+                        edge_pred_protocol=edge_pred_protocol,
+                    ),
+                    SimpleNamespace(
+                        data=make_raw_preprocessing_data(),
+                        sens=None,
+                    ),
+                )
+                self.assertFalse(hasattr(data, "canonical_hyperedge_index"))
+
+    def test_observed_edge_prediction_rejects_all_perturbations(self):
+        perturbation_modes = [
+            "spar_feat",
+            "noise_feat",
+            "drop_incidence",
+            "add_incidence",
+            "spar_label",
+            "flip_label",
+        ]
+        for perturbation_mode in perturbation_modes:
+            for is_perturbed in (True, "True"):
+                for is_poison in (True, False):
+                    with self.subTest(
+                        perturbation_mode=perturbation_mode,
+                        is_perturbed=is_perturbed,
+                        is_poison=is_poison,
+                    ):
+                        args = SimpleNamespace(
+                            task_type="edge_pred",
+                            edge_pred_protocol="observed",
+                            is_perturbed=is_perturbed,
+                            pert_mode=perturbation_mode,
+                            is_poison=is_poison,
+                        )
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            "Perturbations are not supported",
+                        ):
+                            set_task_args(args)
+
+        args = set_task_args(
+            SimpleNamespace(
+                task_type="edge_pred",
+                edge_pred_protocol="observed",
+                is_perturbed="False",
+                dname="cora",
+                method="HGNN",
+                use_bench_prop=True,
+                device="cpu",
+            )
+        )
+        self.assertFalse(args.is_perturbed)
 
     def test_model_self_loops_are_message_passing_only(self):
         canonical_hyperedges = [

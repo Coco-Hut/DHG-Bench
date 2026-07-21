@@ -12,9 +12,14 @@ def data_processing(args,db):
     data=copy.deepcopy(db.data)
     data = ExtractV2E(data)
 
-    # Preserve prediction targets before method-only graph augmentation.
-    canonical_hyperedge_index = data.edge_index.clone()
-    canonical_hyperedge_index[1] -= canonical_hyperedge_index[1].min()
+    preserve_canonical_hyperedges = (
+        getattr(args, 'task_type', None) == 'edge_pred'
+        and getattr(args, 'edge_pred_protocol', 'legacy') == 'observed'
+    )
+    if preserve_canonical_hyperedges:
+        # Preserve prediction targets before method-only graph augmentation.
+        canonical_hyperedge_index = data.edge_index.detach().cpu().clone()
+        canonical_hyperedge_index[1] -= canonical_hyperedge_index[1].min()
     
     if args.method in ['AllSetformer', 'AllDeepSets']:
         if args.add_self_loop:
@@ -32,7 +37,10 @@ def data_processing(args,db):
         db.sens=db.sens.to(args.device)
     
     db.x=data.x.to(args.device)
-    db.canonical_hyperedge_index=canonical_hyperedge_index.to(args.device)
+    if preserve_canonical_hyperedges:
+        db.canonical_hyperedge_index=canonical_hyperedge_index
+    elif hasattr(db, 'canonical_hyperedge_index'):
+        del db.canonical_hyperedge_index
     db.hyperedge_index=data.edge_index.to(args.device)
     db.y=data.y.to(args.device)
     db.data=data

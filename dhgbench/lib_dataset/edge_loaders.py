@@ -163,7 +163,7 @@ def build_observed_train_data(data, data_dict, args):
     train_hyperedge_index = hyperedges_to_index(model_hyperedges, args.device)
     canonical_train_hyperedge_index = hyperedges_to_index(
         train_hyperedges,
-        args.device,
+        "cpu",
     )
 
     train_data.canonical_hyperedge_index = canonical_train_hyperedge_index
