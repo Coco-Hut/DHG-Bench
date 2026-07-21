@@ -8,6 +8,14 @@ from lib_dataset.preprocessing import data_processing
 from parameter_parser import parameter_parser,method_config,set_task_args
 from lib_dataset.data_perturbation import perturbation
 
+
+def should_defer_model_preprocessing(args):
+    return (
+        args.task_type == 'edge_pred'
+        and args.edge_pred_protocol == 'observed'
+    )
+
+
 if __name__ == '__main__':
 
     args = parameter_parser() 
@@ -38,11 +46,12 @@ if __name__ == '__main__':
                 if args.is_poison == False:
                     raise ValueError('Label attack is expected to be the poison attack!')
 
-        data = algo_preprocessing(data,args)
+        if not should_defer_model_preprocessing(args):
+            data = algo_preprocessing(data,args)
 
-        if args.is_perturbed and not args.is_poison:
-            evasion_data = algo_preprocessing(evasion_data,args)
-            data.evasion_data = evasion_data # store evasion data
+            if args.is_perturbed and not args.is_poison:
+                evasion_data = algo_preprocessing(evasion_data,args)
+                data.evasion_data = evasion_data # store evasion data
     
     agent = ExpAgent(args)
     agent.running(args.task_type,data)

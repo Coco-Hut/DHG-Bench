@@ -118,10 +118,12 @@ python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=
 By default, `edge_pred` uses the original DHG-Bench protocol for backward compatibility. To evaluate a held-out hyperedge prediction protocol where validation/test target hyperedges are removed from the message-passing hypergraph, use:
 
 ```bash
-python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=True --edge_pred_protocol=observed
+python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=True --edge_pred_protocol=observed --edge_split_mode=trand
 ```
 
-In `--edge_pred_protocol=observed`, DHG-Bench builds node embeddings on the observed/support hypergraph only, evaluates separate train/validation/test positive hyperedges, and samples negatives while excluding all true hyperedges. This avoids structural leakage from held-out hyperedges and fixes validation positives to use the validation target set rather than training positives.
+In `--edge_pred_protocol=observed`, DHG-Bench assigns at least approximately 60% of the canonical dataset hyperedges to training and divides the remainder as evenly as possible between validation and test. The training partition is expanded when necessary to cover every node that participates in a canonical hyperedge, so its realized proportion can exceed 60%. The complete training partition is used both as the message-passing hypergraph and as supervised training positives, while validation/test positives remain structurally held out. Method-required self-loops and AllSet graph transformations are applied only to the training message-passing graph and never become prediction labels. Model-specific preprocessing is then constructed from this training graph only. Negative sampling excludes all true dataset hyperedges.
+
+Perturbations are not supported by the `observed` edge-prediction protocol. Combining `--edge_pred_protocol=observed` with `--is_perturbed=True` raises an error; use the `legacy` protocol for existing perturbation experiments.
 
 For example, to run the TFHNN method on the stream_player dataset for a hypergraph classification task, use the following command:
 

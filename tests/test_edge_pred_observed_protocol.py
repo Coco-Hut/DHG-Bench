@@ -1,8 +1,10 @@
+import math
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import torch
 
@@ -11,13 +13,25 @@ sys.path.insert(0, str(ROOT / "dhgbench"))
 
 from lib_dataset.edge_loaders import (  # noqa: E402
     HEBatchGenerator,
-    build_observed_support_data,
+    OBSERVED_EDGE_SPLIT_SCHEMA,
+    build_observed_train_data,
     deduplicate_hyperedges,
     generate_observed_ind_split_hyperedges,
     generate_observed_split_hyperedges,
+    hyperedges_from_data,
+    load_train,
     load_val,
+    observed_ehnn_cache_path,
+    observed_edge_split_dir,
 )
+from lib_dataset.preprocessing import (  # noqa: E402
+    data_processing,
+    expand_edge_index_tensor,
+)
+from lib_models.HNN.preprocessing import algo_preprocessing  # noqa: E402
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
+from main import should_defer_model_preprocessing  # noqa: E402
+from parameter_parser import set_task_args  # noqa: E402
 
 
 def make_hyperedge_index(hyperedges):
@@ -30,7 +44,87 @@ def make_hyperedge_index(hyperedges):
     return torch.tensor([rows, cols], dtype=torch.long)
 
 
+class TensorData(SimpleNamespace):
+    def to(self, device):
+        for name in ("x", "hyperedge_index", "y"):
+            value = getattr(self, name, None)
+            if torch.is_tensor(value):
+                setattr(self, name, value.to(device))
+        return self
+
+
+def make_tensor_data(hyperedges, num_nodes):
+    return TensorData(
+        x=torch.ones(num_nodes, 2),
+        hyperedge_index=make_hyperedge_index(hyperedges),
+        num_nodes=num_nodes,
+        data=SimpleNamespace(),
+    )
+
+
+def make_raw_preprocessing_data():
+    node_to_edge = torch.tensor(
+        [[0, 1, 1, 2, 3], [4, 4, 5, 5, 5]],
+        dtype=torch.long,
+    )
+    return SimpleNamespace(
+        x=torch.ones(4, 2),
+        y=torch.zeros(4, dtype=torch.long),
+        edge_index=torch.cat([node_to_edge, node_to_edge.flip(0)], dim=1),
+        n_x=torch.tensor([4]),
+        num_hyperedges=torch.tensor([2]),
+    )
+
+
 class ObservedEdgePredictionProtocolTest(unittest.TestCase):
+    def test_model_preprocessing_is_deferred_only_for_observed_edge_prediction(self):
+        configurations = [
+            ("edge_pred", "observed", True),
+            ("edge_pred", "legacy", False),
+            ("node_cls", "observed", False),
+            ("hg_cls", "observed", False),
+        ]
+        for task_type, edge_pred_protocol, expected in configurations:
+            with self.subTest(
+                task_type=task_type,
+                edge_pred_protocol=edge_pred_protocol,
+            ):
+                self.assertEqual(
+                    should_defer_model_preprocessing(SimpleNamespace(
+                        task_type=task_type,
+                        edge_pred_protocol=edge_pred_protocol,
+                    )),
+                    expected,
+                )
+
+    def test_expand_edge_index_supports_zero_based_and_offset_ids(self):
+        zero_based = make_hyperedge_index(
+            [[0, 1, 2], [1, 3], [4]],
+        )
+        offset = zero_based.clone()
+        offset[1] += 10
+
+        expanded_zero_based = expand_edge_index_tensor(zero_based)
+        expanded_offset = expand_edge_index_tensor(offset)
+        expanded_offset[1] -= 10
+
+        self.assertTrue(torch.equal(expanded_zero_based, expanded_offset))
+        self.assertEqual(len(torch.unique(expanded_zero_based[1])), 6)
+        self.assertEqual(expanded_zero_based[1].min().item(), 0)
+        self.assertEqual(
+            set(hyperedges_from_data(
+                SimpleNamespace(hyperedge_index=expanded_zero_based),
+            )),
+            {
+                frozenset([1, 2]),
+                frozenset([0, 2]),
+                frozenset([0, 1]),
+                frozenset([3]),
+                frozenset([1]),
+                frozenset([4]),
+            },
+        )
+
     def test_deduplicate_hyperedges_uses_node_set_identity(self):
         hyperedges = [
             [0, 1, 2],
@@ -44,7 +138,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
 
         self.assertEqual(unique, [frozenset([0, 1, 2]), frozenset([3, 4, 5]), frozenset([5, 6, 7])])
 
-    def test_observed_protocol_separates_support_targets_and_negatives(self):
+    def test_observed_protocol_uses_train_validation_test_partitions(self):
         hyperedges = [
             [0, 1, 2],
             [2, 3, 4],
@@ -73,57 +167,596 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 device="cpu",
             )
             generate_observed_split_hyperedges(data, args, seed=0)
-            split_path = Path(tmpdir) / "trand_observed" / "toy" / "split_0.pt"
+            split_path = (
+                Path(tmpdir)
+                / "trand_observed_v4"
+                / "train_0.6_valid_0.2"
+                / "toy"
+                / "split_0.pt"
+            )
             data_dict = torch.load(split_path, weights_only=False)
 
-        support = {frozenset(edge) for edge in data_dict["support_pos"]}
-        train_pos = {frozenset(edge) for edge in data_dict["train_only_pos"]}
-        valid_pos = {frozenset(edge) for edge in data_dict["ground_valid"] + data_dict["valid_only_pos"]}
+            args.edge_save_dir = f"{tmpdir}/repeat/"
+            generate_observed_split_hyperedges(data, args, seed=0)
+            repeat_path = (
+                Path(tmpdir)
+                / "repeat"
+                / "trand_observed_v4"
+                / "train_0.6_valid_0.2"
+                / "toy"
+                / "split_0.pt"
+            )
+            repeat_data_dict = torch.load(repeat_path, weights_only=False)
+            self.assertEqual(data_dict, repeat_data_dict)
+
+        train_pos = {frozenset(edge) for edge in data_dict["train_pos"]}
+        valid_pos = {frozenset(edge) for edge in data_dict["valid_pos"]}
         test_pos = {frozenset(edge) for edge in data_dict["test_pos"]}
         all_positive = {frozenset(edge) for edge in hyperedges}
 
         self.assertEqual(data_dict["edge_pred_protocol"], "observed")
-        self.assertTrue(support)
+        self.assertEqual(data_dict["edge_split_schema"], OBSERVED_EDGE_SPLIT_SCHEMA)
+        self.assertEqual(data_dict["train_prop"], 0.6)
+        self.assertEqual(data_dict["valid_prop"], 0.2)
         self.assertTrue(train_pos)
         self.assertTrue(valid_pos)
         self.assertTrue(test_pos)
-        self.assertTrue(support.isdisjoint(train_pos))
-        self.assertTrue(support.isdisjoint(valid_pos))
-        self.assertTrue(support.isdisjoint(test_pos))
         self.assertTrue(train_pos.isdisjoint(valid_pos))
         self.assertTrue(train_pos.isdisjoint(test_pos))
         self.assertTrue(valid_pos.isdisjoint(test_pos))
-        self.assertEqual(len(support | train_pos | valid_pos | test_pos), len(all_positive))
-
+        self.assertEqual(train_pos | valid_pos | test_pos, all_positive)
+        self.assertEqual(len(train_pos), int(0.6 * len(all_positive)))
+        self.assertLessEqual(abs(len(valid_pos) - len(test_pos)), 1)
+        self.assertEqual(
+            {node for edge in train_pos for node in edge},
+            {node for edge in all_positive for node in edge},
+        )
+        train_loader = load_train(data_dict, bs=128, device="cpu", label="pos")
         val_loader = load_val(data_dict, bs=128, device="cpu", label="pos")
+        self.assertEqual({frozenset(edge) for edge in train_loader.hyperedges}, train_pos)
         self.assertEqual({frozenset(edge) for edge in val_loader.hyperedges}, valid_pos)
 
-        for key in [
-            "train_mns",
-            "train_sns",
-            "train_cns",
-            "valid_mns",
-            "valid_sns",
-            "valid_cns",
-            "test_mns",
-            "test_sns",
-            "test_cns",
+        for split_name, positives in [
+            ("train", train_pos),
+            ("valid", valid_pos),
+            ("test", test_pos),
         ]:
-            self.assertTrue({frozenset(edge) for edge in data_dict[key]}.isdisjoint(all_positive), key)
+            for negative_kind in ["mns", "sns", "cns"]:
+                key = f"{split_name}_{negative_kind}"
+                negatives = {frozenset(edge) for edge in data_dict[key]}
+                self.assertEqual(len(data_dict[key]), len(positives), key)
+                self.assertTrue(negatives.isdisjoint(all_positive), key)
 
-    def test_support_data_uses_only_observed_hyperedges(self):
+    def test_observed_split_expands_training_to_cover_every_node(self):
+        hyperedges = [list(range(3 * idx, 3 * idx + 3)) for idx in range(7)]
+        hyperedges += [[0, 3, 6], [9, 12, 15], [2, 5, 8]]
+        data = SimpleNamespace(hyperedge_index=make_hyperedge_index(hyperedges))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                edge_pred_protocol="observed",
+                dname="toy",
+                device="cpu",
+            )
+            with patch(
+                "lib_dataset.edge_loaders.neg_generator_excluding",
+                return_value=([], [], []),
+            ):
+                generate_observed_split_hyperedges(data, args, seed=0)
+            split_path = Path(observed_edge_split_dir(args)) / "split_0.pt"
+            data_dict = torch.load(split_path, weights_only=False)
+
+        self.assertEqual(len(data_dict["train_pos"]), 7)
+        self.assertEqual(len(data_dict["valid_pos"]), 1)
+        self.assertEqual(len(data_dict["test_pos"]), 2)
+        train_nodes = {node for edge in data_dict["train_pos"] for node in edge}
+        all_nodes = {node for edge in hyperedges for node in edge}
+        self.assertEqual(train_nodes, all_nodes)
+
+    def test_data_processing_preserves_hyperedges_before_model_self_loops(self):
+        data = data_processing(
+            SimpleNamespace(
+                method="HyperND",
+                add_self_loop=True,
+                exclude_self=False,
+                normtype="all_one",
+                device="cpu",
+                task_type="edge_pred",
+                edge_pred_protocol="observed",
+            ),
+            SimpleNamespace(data=make_raw_preprocessing_data(), sens=None),
+        )
+
+        canonical_hyperedges = set(
+            hyperedges_from_data(data, data.canonical_hyperedge_index)
+        )
+        model_hyperedges = set(hyperedges_from_data(data))
+
+        self.assertEqual(
+            canonical_hyperedges,
+            {frozenset([0, 1]), frozenset([1, 2, 3])},
+        )
+        self.assertEqual(
+            model_hyperedges,
+            canonical_hyperedges | {frozenset([node]) for node in range(4)},
+        )
+        self.assertEqual(data.canonical_hyperedge_index.device.type, "cpu")
+
+    def test_unrelated_tasks_do_not_preserve_canonical_hyperedges(self):
+        configurations = [
+            ("node_cls", "legacy"),
+            ("edge_pred", "legacy"),
+        ]
+        for task_type, edge_pred_protocol in configurations:
+            with self.subTest(
+                task_type=task_type,
+                edge_pred_protocol=edge_pred_protocol,
+            ):
+                data = data_processing(
+                    SimpleNamespace(
+                        method="HGNN",
+                        add_self_loop=False,
+                        exclude_self=False,
+                        normtype="all_one",
+                        device="cpu",
+                        task_type=task_type,
+                        edge_pred_protocol=edge_pred_protocol,
+                    ),
+                    SimpleNamespace(
+                        data=make_raw_preprocessing_data(),
+                        sens=None,
+                    ),
+                )
+                self.assertFalse(hasattr(data, "canonical_hyperedge_index"))
+
+    def test_observed_edge_prediction_rejects_all_perturbations(self):
+        perturbation_modes = [
+            "spar_feat",
+            "noise_feat",
+            "drop_incidence",
+            "add_incidence",
+            "spar_label",
+            "flip_label",
+        ]
+        for perturbation_mode in perturbation_modes:
+            for is_perturbed in (True, "True"):
+                for is_poison in (True, False):
+                    with self.subTest(
+                        perturbation_mode=perturbation_mode,
+                        is_perturbed=is_perturbed,
+                        is_poison=is_poison,
+                    ):
+                        args = SimpleNamespace(
+                            task_type="edge_pred",
+                            edge_pred_protocol="observed",
+                            is_perturbed=is_perturbed,
+                            pert_mode=perturbation_mode,
+                            is_poison=is_poison,
+                        )
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            "Perturbations are not supported",
+                        ):
+                            set_task_args(args)
+
+        args = set_task_args(
+            SimpleNamespace(
+                task_type="edge_pred",
+                edge_pred_protocol="observed",
+                is_perturbed="False",
+                dname="cora",
+                method="HGNN",
+                use_bench_prop=True,
+                device="cpu",
+            )
+        )
+        self.assertFalse(args.is_perturbed)
+
+    def test_model_self_loops_are_message_passing_only(self):
+        canonical_hyperedges = [
+            [0, 1, 2],
+            [2, 3, 4],
+            [4, 5, 6],
+            [0, 6, 7],
+            [1, 3, 5],
+            [2, 5, 7],
+            [0, 3, 6],
+            [1, 4, 7],
+            [0, 2, 5],
+            [3, 6, 7],
+            [1, 5, 6],
+            [2, 4, 7],
+        ]
+        data = SimpleNamespace(
+            canonical_hyperedge_index=make_hyperedge_index(canonical_hyperedges),
+            hyperedge_index=make_hyperedge_index(
+                canonical_hyperedges + [[node] for node in range(10)]
+            ),
+            num_nodes=10,
+            data=SimpleNamespace(),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                edge_pred_protocol="observed",
+                dname="toy",
+                device="cpu",
+                add_self_loop=True,
+            )
+            with patch(
+                "lib_dataset.edge_loaders.neg_generator_excluding",
+                return_value=([], [], []),
+            ):
+                generate_observed_split_hyperedges(data, args, seed=0)
+            data_dict = torch.load(
+                Path(observed_edge_split_dir(args)) / "split_0.pt",
+                weights_only=False,
+            )
+
+        split_positives = {
+            frozenset(edge)
+            for key in ("train_pos", "valid_pos", "test_pos")
+            for edge in data_dict[key]
+        }
+        canonical_positive_set = {
+            frozenset(edge) for edge in canonical_hyperedges
+        }
+        self.assertEqual(split_positives, canonical_positive_set)
+        self.assertTrue(all(len(edge) > 1 for edge in split_positives))
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        train_positive_set = {
+            frozenset(edge) for edge in data_dict["train_pos"]
+        }
+        self.assertEqual(
+            set(hyperedges_from_data(train_data)),
+            train_positive_set | {frozenset([node]) for node in range(10)},
+        )
+        train_loader = load_train(
+            data_dict,
+            bs=128,
+            device="cpu",
+            label="pos",
+        )
+        self.assertEqual(
+            {frozenset(edge) for edge in train_loader.hyperedges},
+            train_positive_set,
+        )
+
+    def test_train_data_uses_all_and_only_training_hyperedges(self):
         data = SimpleNamespace(
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4], [4, 5, 6]]),
             data=SimpleNamespace(),
         )
-        data_dict = {"support_pos": [[0, 1, 2], [2, 3, 4]]}
-        args = SimpleNamespace(device="cpu")
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": [[0, 1, 2], [2, 3, 4]],
+        }
+        args = SimpleNamespace(device="cpu", train_prop=0.6, valid_prop=0.2)
 
-        support_data = build_observed_support_data(data, data_dict, args)
+        train_data = build_observed_train_data(data, data_dict, args)
 
-        self.assertEqual(support_data.num_hyperedges, 2)
-        self.assertEqual(set(support_data.hyperedge_index[1].tolist()), {0, 1})
-        self.assertEqual(support_data.hyperedge_index.shape[1], 6)
+        self.assertEqual(train_data.num_hyperedges, 2)
+        self.assertEqual(set(train_data.hyperedge_index[1].tolist()), {0, 1})
+        self.assertEqual(train_data.hyperedge_index.shape[1], 6)
+        self.assertEqual(
+            set(hyperedges_from_data(train_data)),
+            {frozenset([0, 1, 2]), frozenset([2, 3, 4])},
+        )
+
+    def test_observed_allset_reapplies_degree_normalization(self):
+        train_hyperedges = [[0, 1, 2], [0, 1], [0, 3]]
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(train_hyperedges),
+            data=SimpleNamespace(),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": train_hyperedges,
+        }
+        args = SimpleNamespace(
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            method="AllSetformer",
+            add_self_loop=False,
+            exclude_self=False,
+            normtype="deg_half_sym",
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        expected_norm = torch.tensor([
+            1 / 3,
+            1 / math.sqrt(6),
+            1 / math.sqrt(3),
+            1 / math.sqrt(6),
+            1 / 2,
+            1 / math.sqrt(6),
+            1 / math.sqrt(2),
+        ])
+
+        self.assertTrue(torch.allclose(train_data.norm, expected_norm))
+        self.assertFalse(torch.allclose(
+            train_data.norm,
+            torch.ones_like(train_data.norm),
+        ))
+        self.assertTrue(torch.allclose(train_data.data.norm, expected_norm))
+
+    def test_observed_allset_expansion_changes_only_message_graph(self):
+        train_hyperedges = [[0, 1, 2], [1, 2, 3]]
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(train_hyperedges),
+            num_nodes=4,
+            data=SimpleNamespace(totedges=2),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": train_hyperedges,
+        }
+        args = SimpleNamespace(
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            method="AllDeepSets",
+            add_self_loop=True,
+            exclude_self=True,
+            normtype="all_one",
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+
+        self.assertEqual(train_data.num_hyperedges, 10)
+        self.assertEqual(len(torch.unique(train_data.hyperedge_index[1])), 10)
+        self.assertEqual(train_data.hyperedge_index.shape[1], 16)
+        self.assertEqual(train_data.norm.shape[0], 16)
+        self.assertEqual(train_data.data.num_hyperedges.item(), 10)
+        self.assertEqual(train_data.data.totedges, 10)
+        self.assertEqual(train_data.data.norm.shape[0], 16)
+        self.assertEqual(
+            set(hyperedges_from_data(
+                train_data,
+                train_data.canonical_hyperedge_index,
+            )),
+            {frozenset(edge) for edge in train_hyperedges},
+        )
+        self.assertEqual(
+            {frozenset(edge) for edge in load_train(
+                data_dict,
+                bs=128,
+                device="cpu",
+                label="pos",
+            ).hyperedges},
+            {frozenset(edge) for edge in train_hyperedges},
+        )
+        self.assertTrue(
+            all(len(edge) <= 2 for edge in hyperedges_from_data(train_data))
+        )
+        self.assertTrue(
+            {frozenset([node]) for node in range(4)}.issubset(
+                set(hyperedges_from_data(train_data))
+            )
+        )
+
+    def test_observed_hypergt_preprocesses_reconstructed_graph_once(self):
+        full_hyperedges = [
+            [0, 1, 2],
+            [1, 2, 3],
+            [2, 3, 4],
+            [0, 3, 4],
+        ]
+        data = make_tensor_data(full_hyperedges, num_nodes=5)
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": full_hyperedges[:2],
+        }
+        args = SimpleNamespace(
+            method="HyperGT",
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            add_self_loop=False,
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        train_data = algo_preprocessing(train_data, args)
+
+        self.assertEqual(train_data.H.shape, torch.Size([5, 2]))
+        self.assertEqual(train_data.num_tokens, 7)
+        self.assertEqual(train_data.x.shape, torch.Size([7, 2]))
+        self.assertEqual(data.x.shape, torch.Size([5, 2]))
+
+    def test_observed_ehnn_cache_is_split_specific(self):
+        full_hyperedges = [
+            [0, 1, 2],
+            [1, 2, 3],
+            [2, 3, 4],
+            [0, 3, 4],
+        ]
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": full_hyperedges[:2],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                method="EHNN",
+                dname="toy",
+                task_type="edge_pred",
+                device="cpu",
+                chunk_size=100,
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                add_self_loop=False,
+            )
+            legacy_cache_path = Path(tmpdir) / "legacy_ehnn.pt"
+            full_data = algo_preprocessing(
+                make_tensor_data(full_hyperedges, num_nodes=5),
+                args,
+                ehnn_cache_path=legacy_cache_path,
+            )
+
+            split_cache_path = Path(observed_ehnn_cache_path(args, seed=0))
+            other_seed_cache_path = Path(observed_ehnn_cache_path(args, seed=1))
+            custom_prop_args = SimpleNamespace(**vars(args))
+            custom_prop_args.train_prop = 0.8
+            custom_prop_args.valid_prop = 0.1
+            custom_prop_cache_path = Path(observed_ehnn_cache_path(
+                custom_prop_args,
+                seed=0,
+            ))
+            train_data = build_observed_train_data(
+                make_tensor_data(full_hyperedges, num_nodes=5),
+                data_dict,
+                args,
+            )
+            train_data = algo_preprocessing(
+                train_data,
+                args,
+                ehnn_cache_path=split_cache_path,
+            )
+
+            self.assertEqual(full_data.ehnn_cache["incidence"].shape, (5, 4))
+            self.assertEqual(train_data.ehnn_cache["incidence"].shape, (5, 2))
+            self.assertNotEqual(legacy_cache_path, split_cache_path)
+            self.assertNotEqual(split_cache_path, other_seed_cache_path)
+            self.assertNotEqual(split_cache_path, custom_prop_cache_path)
+            self.assertEqual(
+                split_cache_path.parent,
+                Path(observed_edge_split_dir(args)),
+            )
+            self.assertTrue(split_cache_path.is_file())
+
+            with patch(
+                "lib_models.HNN.preprocessing.build_mask_chunk",
+            ) as build_mask_chunk, patch(
+                "lib_models.HNN.preprocessing.build_mask",
+            ) as build_mask:
+                cached_train_data = build_observed_train_data(
+                    make_tensor_data(full_hyperedges, num_nodes=5),
+                    data_dict,
+                    args,
+                )
+                cached_train_data = algo_preprocessing(
+                    cached_train_data,
+                    args,
+                    ehnn_cache_path=split_cache_path,
+                )
+
+            build_mask_chunk.assert_not_called()
+            build_mask.assert_not_called()
+            self.assertEqual(
+                cached_train_data.ehnn_cache["incidence"].shape,
+                (5, 2),
+            )
+
+    def test_observed_cache_and_artifact_validate_split_proportions(self):
+        args = SimpleNamespace(
+            edge_save_dir="/tmp/splits",
+            edge_split_mode="trand",
+            dname="toy",
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+        )
+        default_dir = observed_edge_split_dir(args)
+        args.train_prop = 0.8
+        args.valid_prop = 0.1
+        custom_dir = observed_edge_split_dir(args)
+
+        self.assertNotEqual(default_dir, custom_dir)
+        self.assertTrue(default_dir.endswith("trand_observed_v4/train_0.6_valid_0.2/toy"))
+        self.assertTrue(custom_dir.endswith("trand_observed_v4/train_0.8_valid_0.1/toy"))
+
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": [[0, 1, 2]],
+        }
+        with self.assertRaisesRegex(ValueError, "incompatible proportions"):
+            build_observed_train_data(data, data_dict, args)
+
+    def test_observed_split_rejects_invalid_or_empty_proportions(self):
+        args = SimpleNamespace(
+            edge_save_dir="/tmp/splits",
+            edge_split_mode="trand",
+            dname="toy",
+            train_prop=0.6,
+            valid_prop=0.2,
+        )
+        invalid_proportions = [
+            (0.0, 0.2),
+            (-0.1, 0.2),
+            (0.6, 0.0),
+            (0.6, -0.1),
+            (0.8, 0.2),
+            (0.9, 0.2),
+            (0.7, 0.1),
+            (float("inf"), 0.2),
+            (0.6, float("nan")),
+        ]
+        for train_prop, valid_prop in invalid_proportions:
+            with self.subTest(train_prop=train_prop, valid_prop=valid_prop):
+                args.train_prop = train_prop
+                args.valid_prop = valid_prop
+                with self.assertRaisesRegex(ValueError, "proportions must be finite"):
+                    observed_edge_split_dir(args)
+
+        args.train_prop = 0.6
+        args.valid_prop = 0.2
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(
+                [[0, 1, 2], [2, 3, 4], [4, 5, 6], [0, 6, 7]]
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "non-empty train"):
+            generate_observed_split_hyperedges(data, args, seed=0)
+
+    def test_old_observed_split_schema_is_rejected(self):
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
+        )
+        old_data_dict = {
+            "edge_split_schema": "train_valid_test_cover_v2",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "support_pos": [[0, 1, 2]],
+            "train_only_pos": [[2, 3, 4]],
+        }
+
+        with self.assertRaisesRegex(ValueError, "incompatible schema"):
+            build_observed_train_data(
+                data,
+                old_data_dict,
+                SimpleNamespace(device="cpu"),
+            )
 
     def test_observed_ind_split_is_disabled(self):
         data = SimpleNamespace(

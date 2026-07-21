@@ -10,9 +10,18 @@ from torch_geometric.nn.conv.gcn_conv import gcn_norm
 def data_processing(args,db):
     
     data=copy.deepcopy(db.data)
+    data = ExtractV2E(data)
+
+    preserve_canonical_hyperedges = (
+        getattr(args, 'task_type', None) == 'edge_pred'
+        and getattr(args, 'edge_pred_protocol', 'legacy') == 'observed'
+    )
+    if preserve_canonical_hyperedges:
+        # Preserve prediction targets before method-only graph augmentation.
+        canonical_hyperedge_index = data.edge_index.detach().cpu().clone()
+        canonical_hyperedge_index[1] -= canonical_hyperedge_index[1].min()
     
     if args.method in ['AllSetformer', 'AllDeepSets']:
-        data = ExtractV2E(data)
         if args.add_self_loop:
             data = Add_Self_Loops(data)
         if args.exclude_self:
@@ -20,7 +29,6 @@ def data_processing(args,db):
         data = norm_contruction(data, option=args.normtype)
         db.norm=data.norm.to(args.device)
     else:
-        data = ExtractV2E(data)
         if args.add_self_loop:
             data = Add_Self_Loops(data)
         data.edge_index[1] -= data.edge_index[1].min()
@@ -29,6 +37,10 @@ def data_processing(args,db):
         db.sens=db.sens.to(args.device)
     
     db.x=data.x.to(args.device)
+    if preserve_canonical_hyperedges:
+        db.canonical_hyperedge_index=canonical_hyperedge_index
+    elif hasattr(db, 'canonical_hyperedge_index'):
+        del db.canonical_hyperedge_index
     db.hyperedge_index=data.edge_index.to(args.device)
     db.y=data.y.to(args.device)
     db.data=data
@@ -37,70 +49,56 @@ def data_processing(args,db):
 
 def expand_edge_index(data, edge_th=0):
 
-    edge_index = data.edge_index
-    num_nodes = data.n_x[0].item()
-    if hasattr(data, 'totedges'):
-        num_edges = data.totedges
-    else:
-        num_edges = data.num_hyperedges[0]
+    data.edge_index = expand_edge_index_tensor(data.edge_index, edge_th=edge_th)
+    return data
+
+
+def expand_edge_index_tensor(edge_index, edge_th=0):
+
+    if edge_index.numel() == 0:
+        return edge_index.clone()
 
     expanded_n2he_index = []
+    cur_he_id = int(edge_index[1].min().item())
 
-    cur_he_id = num_nodes
-
-    new_edge_id_2_original_edge_id = {}
-
-    for he_idx in range(num_nodes, num_edges + num_nodes):
-        # find all nodes within the same hyperedge.
+    for he_idx in torch.unique(edge_index[1], sorted=True).tolist():
         selected_he = edge_index[:, edge_index[1] == he_idx]
         size_of_he = selected_he.shape[1]
 
-#         Trim a hyperedge if its size>edge_th
-        if edge_th > 0:
-            if size_of_he > edge_th:
-                continue
+        if edge_th > 0 and size_of_he > edge_th:
+            continue
 
         if size_of_he == 1:
-
             new_n2he = selected_he.clone()
             new_n2he[1] = cur_he_id
             expanded_n2he_index.append(new_n2he)
-
             cur_he_id += 1
             continue
 
         new_n2he = selected_he.repeat_interleave(size_of_he, dim=1)
+        new_edge_ids = torch.arange(
+            cur_he_id,
+            cur_he_id + size_of_he,
+            dtype=edge_index.dtype,
+            device=edge_index.device,
+        )
+        new_n2he[1] = new_edge_ids.repeat(size_of_he)
 
-        # new_edge_ids start from the he_id from previous iteration (cur_he_id).
-        new_edge_ids = torch.LongTensor(
-            np.arange(cur_he_id, cur_he_id + size_of_he)).repeat(size_of_he)
-        new_n2he[1] = new_edge_ids
-
-        # build a mapping between node and it's corresponding edge.
-        # e.g. {n_1: e_7_1, n_2: e_7_2}
-        tmp_node_id_2_he_id_dict = {}
-        for idx in range(size_of_he):
-            new_edge_id_2_original_edge_id[cur_he_id] = he_idx
-            cur_node_id = selected_he[0][idx].item()
-            tmp_node_id_2_he_id_dict[cur_node_id] = cur_he_id
-            cur_he_id += 1
-
-        # create n2he by deleting the self-product edge.
-        new_he_select_mask = torch.BoolTensor([True] * new_n2he.shape[1])
-        for col_idx in range(new_n2he.shape[1]):
-            tmp_node_id, tmp_edge_id = new_n2he[0, col_idx].item(
-            ), new_n2he[1, col_idx].item()
-            if tmp_node_id_2_he_id_dict[tmp_node_id] == tmp_edge_id:
-                new_he_select_mask[col_idx] = False
-        new_n2he = new_n2he[:, new_he_select_mask]
+        excluded_edge_ids = new_edge_ids.repeat_interleave(size_of_he)
+        new_n2he = new_n2he[:, new_n2he[1] != excluded_edge_ids]
         expanded_n2he_index.append(new_n2he)
+        cur_he_id += size_of_he
+
+    if not expanded_n2he_index:
+        return torch.empty(
+            (2, 0),
+            dtype=edge_index.dtype,
+            device=edge_index.device,
+        )
 
     new_edge_index = torch.cat(expanded_n2he_index, dim=1)
-
     new_order = new_edge_index[0].argsort()
-    data.edge_index = new_edge_index[:, new_order]
-
-    return data
+    return new_edge_index[:, new_order]
 
 def ExtractV2E(data):
     # Assume edge_index = [V|E;E|V]
@@ -161,23 +159,34 @@ def Add_Self_Loops(data):
 
 def norm_contruction(data, option='all_one', TYPE='V2E'):
     if TYPE == 'V2E':
-        if option == 'all_one':
-            data.norm = torch.ones_like(data.edge_index[0])
-
-        elif option == 'deg_half_sym':
-            edge_weight = torch.ones_like(data.edge_index[0])
-            cidx = data.edge_index[1].min()
-            Vdeg = scatter_add(edge_weight, data.edge_index[0], dim=0)
-            HEdeg = scatter_add(edge_weight, data.edge_index[1]-cidx, dim=0)
-            V_norm = Vdeg**(-1/2)
-            E_norm = HEdeg**(-1/2)
-            data.norm = V_norm[data.edge_index[0]] * \
-                E_norm[data.edge_index[1]-cidx]
+        data.norm = construct_v2e_norm(data.edge_index, option=option)
 
     elif TYPE == 'V2V':
         data.edge_index, data.norm = gcn_norm(
             data.edge_index, data.norm, add_self_loops=True)
     return data
+
+
+def construct_v2e_norm(edge_index, option='all_one'):
+    if option == 'all_one':
+        return torch.ones_like(edge_index[0])
+
+    if option == 'deg_half_sym':
+        if edge_index.numel() == 0:
+            return torch.empty(
+                (0,),
+                dtype=torch.float,
+                device=edge_index.device,
+            )
+        edge_weight = torch.ones_like(edge_index[0])
+        cidx = edge_index[1].min()
+        Vdeg = scatter_add(edge_weight, edge_index[0], dim=0)
+        HEdeg = scatter_add(edge_weight, edge_index[1] - cidx, dim=0)
+        V_norm = Vdeg**(-1/2)
+        E_norm = HEdeg**(-1/2)
+        return V_norm[edge_index[0]] * E_norm[edge_index[1] - cidx]
+
+    raise ValueError(f'Unsupported V2E normalization option: {option!r}')
 
 def rand_train_test_idx(label, train_prop=.5, valid_prop=.25, ignore_negative=True, balance=False):
     """ Adapted from https://github.com/CUAI/Non-Homophily-Benchmarks"""

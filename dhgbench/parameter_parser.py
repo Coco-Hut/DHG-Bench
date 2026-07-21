@@ -37,7 +37,25 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
+def validate_observed_edge_prediction_args(args):
+    is_perturbed = getattr(args, 'is_perturbed', False)
+    if isinstance(is_perturbed, str):
+        is_perturbed = str2bool(is_perturbed)
+        args.is_perturbed = is_perturbed
+
+    if (
+        args.task_type == 'edge_pred'
+        and getattr(args, 'edge_pred_protocol', 'legacy') == 'observed'
+        and is_perturbed
+    ):
+        raise ValueError(
+            'Perturbations are not supported with '
+            '--edge_pred_protocol=observed; disable --is_perturbed or use '
+            '--edge_pred_protocol=legacy'
+        )
+
 def set_task_args(args):
+    validate_observed_edge_prediction_args(args)
     
     if args.task_type == 'node_cls':
         if args.dname not in _single_datasets_:
