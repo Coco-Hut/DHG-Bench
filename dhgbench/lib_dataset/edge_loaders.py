@@ -10,8 +10,8 @@ import torch
 import numpy as np
 from collections import defaultdict
 
-OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_cover_v2"
-OBSERVED_EDGE_SPLIT_CACHE = "observed_v3"
+OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_cover_v3"
+OBSERVED_EDGE_SPLIT_CACHE = "observed_v4"
 
 
 def validate_observed_split_proportions(args):
@@ -53,8 +53,10 @@ def observed_edge_split_dir(args):
     )
 
 
-def hyperedges_from_data(data):
-    hyperedge_index = data.hyperedge_index.to('cpu')
+def hyperedges_from_data(data, hyperedge_index=None):
+    if hyperedge_index is None:
+        hyperedge_index = data.hyperedge_index
+    hyperedge_index = hyperedge_index.to('cpu')
     hyperedges = defaultdict(set)
 
     for node, edge in zip(*hyperedge_index.tolist()):
@@ -86,6 +88,44 @@ def hyperedges_to_index(hyperedges, device):
         return torch.empty((2, 0), dtype=torch.long, device=device)
     return torch.tensor([node_ids, edge_ids], dtype=torch.long, device=device)
 
+
+def canonical_hyperedges_from_data(data):
+    canonical_hyperedge_index = getattr(
+        data,
+        "canonical_hyperedge_index",
+        data.hyperedge_index,
+    )
+    return hyperedges_from_data(data, canonical_hyperedge_index)
+
+
+def num_nodes_from_data(data, hyperedges):
+    if hasattr(data, "num_nodes"):
+        num_nodes = data.num_nodes
+    elif hasattr(data, "x"):
+        num_nodes = data.x.shape[0]
+    elif hasattr(data, "data") and hasattr(data.data, "n_x"):
+        num_nodes = data.data.n_x
+    else:
+        nodes = get_union(hyperedges)
+        return max(nodes) + 1 if nodes else 0
+
+    if torch.is_tensor(num_nodes):
+        num_nodes = num_nodes.reshape(-1)[0].item()
+    return int(num_nodes)
+
+
+def add_model_self_loops(hyperedges, num_nodes):
+    model_hyperedges = list(hyperedges)
+    singleton_nodes = {
+        next(iter(edge)) for edge in model_hyperedges if len(edge) == 1
+    }
+    model_hyperedges.extend(
+        frozenset([node])
+        for node in range(num_nodes)
+        if node not in singleton_nodes
+    )
+    return model_hyperedges
+
 def build_observed_train_data(data, data_dict, args):
     split_schema = data_dict.get("edge_split_schema")
     if split_schema != OBSERVED_EDGE_SPLIT_SCHEMA:
@@ -114,15 +154,28 @@ def build_observed_train_data(data, data_dict, args):
 
     train_data = copy.deepcopy(data)
     train_hyperedges = [frozenset(edge) for edge in data_dict["train_pos"]]
-    train_hyperedge_index = hyperedges_to_index(train_hyperedges, args.device)
+    model_hyperedges = train_hyperedges
+    if getattr(args, "add_self_loop", False):
+        model_hyperedges = add_model_self_loops(
+            train_hyperedges,
+            num_nodes_from_data(data, train_hyperedges),
+        )
+    train_hyperedge_index = hyperedges_to_index(model_hyperedges, args.device)
+    canonical_train_hyperedge_index = hyperedges_to_index(
+        train_hyperedges,
+        args.device,
+    )
 
+    train_data.canonical_hyperedge_index = canonical_train_hyperedge_index
     train_data.hyperedge_index = train_hyperedge_index
-    train_data.num_hyperedges = len(train_hyperedges)
+    train_data.num_hyperedges = len(model_hyperedges)
     train_data.norm = torch.ones_like(train_hyperedge_index[0])
 
     if hasattr(train_data, "data"):
         train_data.data.edge_index = train_hyperedge_index.detach().cpu()
-        train_data.data.num_hyperedges = torch.tensor([len(train_hyperedges)])
+        train_data.data.num_hyperedges = torch.tensor([len(model_hyperedges)])
+        if hasattr(train_data.data, "totedges"):
+            train_data.data.totedges = len(model_hyperedges)
         train_data.data.norm = torch.ones_like(train_data.data.edge_index[0])
 
     return train_data
@@ -276,7 +329,7 @@ def generate_split_hyperedges(data,args,seed):
 def generate_observed_split_hyperedges(data,args,seed):
 
     train_prop, valid_prop = validate_observed_split_proportions(args)
-    HE = hyperedges_from_data(data)
+    HE = canonical_hyperedges_from_data(data)
 
     base_cover = get_cover_idx(HE)
     base_cover_set = set(base_cover)

@@ -22,6 +22,7 @@ from lib_dataset.edge_loaders import (  # noqa: E402
     load_val,
     observed_edge_split_dir,
 )
+from lib_dataset.preprocessing import data_processing  # noqa: E402
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
 
 
@@ -80,7 +81,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             generate_observed_split_hyperedges(data, args, seed=0)
             split_path = (
                 Path(tmpdir)
-                / "trand_observed_v3"
+                / "trand_observed_v4"
                 / "train_0.6_valid_0.2"
                 / "toy"
                 / "split_0.pt"
@@ -92,7 +93,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             repeat_path = (
                 Path(tmpdir)
                 / "repeat"
-                / "trand_observed_v3"
+                / "trand_observed_v4"
                 / "train_0.6_valid_0.2"
                 / "toy"
                 / "split_0.pt"
@@ -168,6 +169,118 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         all_nodes = {node for edge in hyperedges for node in edge}
         self.assertEqual(train_nodes, all_nodes)
 
+    def test_data_processing_preserves_hyperedges_before_model_self_loops(self):
+        node_to_edge = torch.tensor(
+            [[0, 1, 1, 2, 3], [4, 4, 5, 5, 5]],
+            dtype=torch.long,
+        )
+        raw_data = SimpleNamespace(
+            x=torch.ones(4, 2),
+            y=torch.zeros(4, dtype=torch.long),
+            edge_index=torch.cat([node_to_edge, node_to_edge.flip(0)], dim=1),
+            n_x=torch.tensor([4]),
+            num_hyperedges=torch.tensor([2]),
+        )
+        data = data_processing(
+            SimpleNamespace(
+                method="HyperND",
+                add_self_loop=True,
+                exclude_self=False,
+                normtype="all_one",
+                device="cpu",
+            ),
+            SimpleNamespace(data=raw_data, sens=None),
+        )
+
+        canonical_hyperedges = set(
+            hyperedges_from_data(data, data.canonical_hyperedge_index)
+        )
+        model_hyperedges = set(hyperedges_from_data(data))
+
+        self.assertEqual(
+            canonical_hyperedges,
+            {frozenset([0, 1]), frozenset([1, 2, 3])},
+        )
+        self.assertEqual(
+            model_hyperedges,
+            canonical_hyperedges | {frozenset([node]) for node in range(4)},
+        )
+
+    def test_model_self_loops_are_message_passing_only(self):
+        canonical_hyperedges = [
+            [0, 1, 2],
+            [2, 3, 4],
+            [4, 5, 6],
+            [0, 6, 7],
+            [1, 3, 5],
+            [2, 5, 7],
+            [0, 3, 6],
+            [1, 4, 7],
+            [0, 2, 5],
+            [3, 6, 7],
+            [1, 5, 6],
+            [2, 4, 7],
+        ]
+        data = SimpleNamespace(
+            canonical_hyperedge_index=make_hyperedge_index(canonical_hyperedges),
+            hyperedge_index=make_hyperedge_index(
+                canonical_hyperedges + [[node] for node in range(10)]
+            ),
+            num_nodes=10,
+            data=SimpleNamespace(),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                edge_pred_protocol="observed",
+                dname="toy",
+                device="cpu",
+                add_self_loop=True,
+            )
+            with patch(
+                "lib_dataset.edge_loaders.neg_generator_excluding",
+                return_value=([], [], []),
+            ):
+                generate_observed_split_hyperedges(data, args, seed=0)
+            data_dict = torch.load(
+                Path(observed_edge_split_dir(args)) / "split_0.pt",
+                weights_only=False,
+            )
+
+        split_positives = {
+            frozenset(edge)
+            for key in ("train_pos", "valid_pos", "test_pos")
+            for edge in data_dict[key]
+        }
+        canonical_positive_set = {
+            frozenset(edge) for edge in canonical_hyperedges
+        }
+        self.assertEqual(split_positives, canonical_positive_set)
+        self.assertTrue(all(len(edge) > 1 for edge in split_positives))
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        train_positive_set = {
+            frozenset(edge) for edge in data_dict["train_pos"]
+        }
+        self.assertEqual(
+            set(hyperedges_from_data(train_data)),
+            train_positive_set | {frozenset([node]) for node in range(10)},
+        )
+        train_loader = load_train(
+            data_dict,
+            bs=128,
+            device="cpu",
+            label="pos",
+        )
+        self.assertEqual(
+            {frozenset(edge) for edge in train_loader.hyperedges},
+            train_positive_set,
+        )
+
     def test_train_data_uses_all_and_only_training_hyperedges(self):
         data = SimpleNamespace(
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4], [4, 5, 6]]),
@@ -206,8 +319,8 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         custom_dir = observed_edge_split_dir(args)
 
         self.assertNotEqual(default_dir, custom_dir)
-        self.assertTrue(default_dir.endswith("trand_observed_v3/train_0.6_valid_0.2/toy"))
-        self.assertTrue(custom_dir.endswith("trand_observed_v3/train_0.8_valid_0.1/toy"))
+        self.assertTrue(default_dir.endswith("trand_observed_v4/train_0.6_valid_0.2/toy"))
+        self.assertTrue(custom_dir.endswith("trand_observed_v4/train_0.8_valid_0.1/toy"))
 
         data = SimpleNamespace(
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
@@ -262,7 +375,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
         )
         old_data_dict = {
-            "edge_split_schema": "train_valid_test_v1",
+            "edge_split_schema": "train_valid_test_cover_v2",
             "train_prop": 0.6,
             "valid_prop": 0.2,
             "support_pos": [[0, 1, 2]],

@@ -10,9 +10,13 @@ from torch_geometric.nn.conv.gcn_conv import gcn_norm
 def data_processing(args,db):
     
     data=copy.deepcopy(db.data)
+    data = ExtractV2E(data)
+
+    # Preserve prediction targets before method-only graph augmentation.
+    canonical_hyperedge_index = data.edge_index.clone()
+    canonical_hyperedge_index[1] -= canonical_hyperedge_index[1].min()
     
     if args.method in ['AllSetformer', 'AllDeepSets']:
-        data = ExtractV2E(data)
         if args.add_self_loop:
             data = Add_Self_Loops(data)
         if args.exclude_self:
@@ -20,7 +24,6 @@ def data_processing(args,db):
         data = norm_contruction(data, option=args.normtype)
         db.norm=data.norm.to(args.device)
     else:
-        data = ExtractV2E(data)
         if args.add_self_loop:
             data = Add_Self_Loops(data)
         data.edge_index[1] -= data.edge_index[1].min()
@@ -29,6 +32,7 @@ def data_processing(args,db):
         db.sens=db.sens.to(args.device)
     
     db.x=data.x.to(args.device)
+    db.canonical_hyperedge_index=canonical_hyperedge_index.to(args.device)
     db.hyperedge_index=data.edge_index.to(args.device)
     db.y=data.y.to(args.device)
     db.data=data
