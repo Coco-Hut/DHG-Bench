@@ -80,7 +80,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             generate_observed_split_hyperedges(data, args, seed=0)
             split_path = (
                 Path(tmpdir)
-                / "trand_observed_v2"
+                / "trand_observed_v3"
                 / "train_0.6_valid_0.2"
                 / "toy"
                 / "split_0.pt"
@@ -92,7 +92,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             repeat_path = (
                 Path(tmpdir)
                 / "repeat"
-                / "trand_observed_v2"
+                / "trand_observed_v3"
                 / "train_0.6_valid_0.2"
                 / "toy"
                 / "split_0.pt"
@@ -117,7 +117,11 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertTrue(valid_pos.isdisjoint(test_pos))
         self.assertEqual(train_pos | valid_pos | test_pos, all_positive)
         self.assertEqual(len(train_pos), int(0.6 * len(all_positive)))
-        self.assertEqual(len(valid_pos), int(0.2 * len(all_positive)))
+        self.assertLessEqual(abs(len(valid_pos) - len(test_pos)), 1)
+        self.assertEqual(
+            {node for edge in train_pos for node in edge},
+            {node for edge in all_positive for node in edge},
+        )
         train_loader = load_train(data_dict, bs=128, device="cpu", label="pos")
         val_loader = load_val(data_dict, bs=128, device="cpu", label="pos")
         self.assertEqual({frozenset(edge) for edge in train_loader.hyperedges}, train_pos)
@@ -134,8 +138,9 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 self.assertEqual(len(data_dict[key]), len(positives), key)
                 self.assertTrue(negatives.isdisjoint(all_positive), key)
 
-    def test_observed_split_does_not_force_training_to_cover_every_node(self):
-        hyperedges = [list(range(3 * idx, 3 * idx + 3)) for idx in range(10)]
+    def test_observed_split_expands_training_to_cover_every_node(self):
+        hyperedges = [list(range(3 * idx, 3 * idx + 3)) for idx in range(7)]
+        hyperedges += [[0, 3, 6], [9, 12, 15], [2, 5, 8]]
         data = SimpleNamespace(hyperedge_index=make_hyperedge_index(hyperedges))
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -156,12 +161,12 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             split_path = Path(observed_edge_split_dir(args)) / "split_0.pt"
             data_dict = torch.load(split_path, weights_only=False)
 
-        self.assertEqual(len(data_dict["train_pos"]), 6)
-        self.assertEqual(len(data_dict["valid_pos"]), 2)
+        self.assertEqual(len(data_dict["train_pos"]), 7)
+        self.assertEqual(len(data_dict["valid_pos"]), 1)
         self.assertEqual(len(data_dict["test_pos"]), 2)
         train_nodes = {node for edge in data_dict["train_pos"] for node in edge}
         all_nodes = {node for edge in hyperedges for node in edge}
-        self.assertLess(len(train_nodes), len(all_nodes))
+        self.assertEqual(train_nodes, all_nodes)
 
     def test_train_data_uses_all_and_only_training_hyperedges(self):
         data = SimpleNamespace(
@@ -196,13 +201,13 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             valid_prop=0.2,
         )
         default_dir = observed_edge_split_dir(args)
-        args.train_prop = 0.7
+        args.train_prop = 0.8
         args.valid_prop = 0.1
         custom_dir = observed_edge_split_dir(args)
 
         self.assertNotEqual(default_dir, custom_dir)
-        self.assertTrue(default_dir.endswith("trand_observed_v2/train_0.6_valid_0.2/toy"))
-        self.assertTrue(custom_dir.endswith("trand_observed_v2/train_0.7_valid_0.1/toy"))
+        self.assertTrue(default_dir.endswith("trand_observed_v3/train_0.6_valid_0.2/toy"))
+        self.assertTrue(custom_dir.endswith("trand_observed_v3/train_0.8_valid_0.1/toy"))
 
         data = SimpleNamespace(
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
@@ -231,6 +236,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             (0.6, -0.1),
             (0.8, 0.2),
             (0.9, 0.2),
+            (0.7, 0.1),
             (float("inf"), 0.2),
             (0.6, float("nan")),
         ]
@@ -256,6 +262,9 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
         )
         old_data_dict = {
+            "edge_split_schema": "train_valid_test_v1",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
             "support_pos": [[0, 1, 2]],
             "train_only_pos": [[2, 3, 4]],
         }

@@ -10,24 +10,30 @@ import torch
 import numpy as np
 from collections import defaultdict
 
-OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_v1"
-OBSERVED_EDGE_SPLIT_CACHE = "observed_v2"
+OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_cover_v2"
+OBSERVED_EDGE_SPLIT_CACHE = "observed_v3"
 
 
 def validate_observed_split_proportions(args):
     train_prop = float(args.train_prop)
     valid_prop = float(args.valid_prop)
+    expected_valid_prop = (1.0 - train_prop) / 2.0
     if (
         not np.isfinite(train_prop)
         or not np.isfinite(valid_prop)
         or train_prop <= 0
         or valid_prop <= 0
-        or train_prop + valid_prop >= 1
+        or not np.isclose(
+            valid_prop,
+            expected_valid_prop,
+            rtol=0.0,
+            atol=1e-12,
+        )
     ):
         raise ValueError(
             "Observed edge split proportions must be finite and satisfy "
-            "0 < train_prop, 0 < valid_prop, and "
-            "train_prop + valid_prop < 1; "
+            "0 < train_prop < 1 and "
+            "valid_prop = (1 - train_prop) / 2 > 0; "
             f"got train_prop={train_prop!r}, valid_prop={valid_prop!r}"
         )
     return train_prop, valid_prop
@@ -272,13 +278,17 @@ def generate_observed_split_hyperedges(data,args,seed):
     train_prop, valid_prop = validate_observed_split_proportions(args)
     HE = hyperedges_from_data(data)
 
-    train_num = int(train_prop * len(HE))
-    valid_num = int(valid_prop * len(HE))
-    test_num = len(HE) - train_num - valid_num
+    base_cover = get_cover_idx(HE)
+    base_cover_set = set(base_cover)
+    target_train_num = int(train_prop * len(HE))
+    train_num = max(target_train_num, len(base_cover))
+    held_out_num = len(HE) - train_num
+    valid_num = held_out_num // 2
+    test_num = held_out_num - valid_num
     if min(train_num, valid_num, test_num) <= 0:
         raise ValueError(
-            "Observed edge split proportions must produce non-empty train, "
-            "validation, and test partitions; "
+            "Observed edge split must produce non-empty train, validation, "
+            "and test partitions after enforcing training-node coverage; "
             f"got {len(HE)} hyperedges and partition sizes "
             f"train={train_num}, valid={valid_num}, test={test_num}"
         )
@@ -289,11 +299,13 @@ def generate_observed_split_hyperedges(data,args,seed):
     seed_base = 42
     fix_seed(seed_base+seed)
 
-    total_idx = list(range(len(HE)))
-    random.shuffle(total_idx)
-    train_idx = total_idx[:train_num]
-    valid_idx = total_idx[train_num:train_num + valid_num]
-    test_idx = total_idx[train_num + valid_num:]
+    non_cover_idx = [idx for idx in range(len(HE)) if idx not in base_cover_set]
+    random.shuffle(non_cover_idx)
+    train_extra_num = train_num - len(base_cover)
+    train_idx = list(base_cover) + non_cover_idx[:train_extra_num]
+    held_out_idx = non_cover_idx[train_extra_num:]
+    valid_idx = held_out_idx[:valid_num]
+    test_idx = held_out_idx[valid_num:]
 
     train_data = [HE[idx] for idx in train_idx]
     valid_data = [HE[idx] for idx in valid_idx]
