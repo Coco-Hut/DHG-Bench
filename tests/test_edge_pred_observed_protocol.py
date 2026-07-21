@@ -1,3 +1,4 @@
+import math
 import sys
 import tempfile
 import unittest
@@ -22,7 +23,10 @@ from lib_dataset.edge_loaders import (  # noqa: E402
     load_val,
     observed_edge_split_dir,
 )
-from lib_dataset.preprocessing import data_processing  # noqa: E402
+from lib_dataset.preprocessing import (  # noqa: E402
+    data_processing,
+    expand_edge_index_tensor,
+)
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
 from parameter_parser import set_task_args  # noqa: E402
 
@@ -52,6 +56,34 @@ def make_raw_preprocessing_data():
 
 
 class ObservedEdgePredictionProtocolTest(unittest.TestCase):
+    def test_expand_edge_index_supports_zero_based_and_offset_ids(self):
+        zero_based = make_hyperedge_index(
+            [[0, 1, 2], [1, 3], [4]],
+        )
+        offset = zero_based.clone()
+        offset[1] += 10
+
+        expanded_zero_based = expand_edge_index_tensor(zero_based)
+        expanded_offset = expand_edge_index_tensor(offset)
+        expanded_offset[1] -= 10
+
+        self.assertTrue(torch.equal(expanded_zero_based, expanded_offset))
+        self.assertEqual(len(torch.unique(expanded_zero_based[1])), 6)
+        self.assertEqual(expanded_zero_based[1].min().item(), 0)
+        self.assertEqual(
+            set(hyperedges_from_data(
+                SimpleNamespace(hyperedge_index=expanded_zero_based),
+            )),
+            {
+                frozenset([1, 2]),
+                frozenset([0, 2]),
+                frozenset([0, 1]),
+                frozenset([3]),
+                frozenset([1]),
+                frozenset([4]),
+            },
+        )
+
     def test_deduplicate_hyperedges_uses_node_set_identity(self):
         hyperedges = [
             [0, 1, 2],
@@ -379,6 +411,105 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertEqual(
             set(hyperedges_from_data(train_data)),
             {frozenset([0, 1, 2]), frozenset([2, 3, 4])},
+        )
+
+    def test_observed_allset_reapplies_degree_normalization(self):
+        train_hyperedges = [[0, 1, 2], [0, 1], [0, 3]]
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(train_hyperedges),
+            data=SimpleNamespace(),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": train_hyperedges,
+        }
+        args = SimpleNamespace(
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            method="AllSetformer",
+            add_self_loop=False,
+            exclude_self=False,
+            normtype="deg_half_sym",
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        expected_norm = torch.tensor([
+            1 / 3,
+            1 / math.sqrt(6),
+            1 / math.sqrt(3),
+            1 / math.sqrt(6),
+            1 / 2,
+            1 / math.sqrt(6),
+            1 / math.sqrt(2),
+        ])
+
+        self.assertTrue(torch.allclose(train_data.norm, expected_norm))
+        self.assertFalse(torch.allclose(
+            train_data.norm,
+            torch.ones_like(train_data.norm),
+        ))
+        self.assertTrue(torch.allclose(train_data.data.norm, expected_norm))
+
+    def test_observed_allset_expansion_changes_only_message_graph(self):
+        train_hyperedges = [[0, 1, 2], [1, 2, 3]]
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(train_hyperedges),
+            num_nodes=4,
+            data=SimpleNamespace(totedges=2),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": train_hyperedges,
+        }
+        args = SimpleNamespace(
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            method="AllDeepSets",
+            add_self_loop=True,
+            exclude_self=True,
+            normtype="all_one",
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+
+        self.assertEqual(train_data.num_hyperedges, 10)
+        self.assertEqual(len(torch.unique(train_data.hyperedge_index[1])), 10)
+        self.assertEqual(train_data.hyperedge_index.shape[1], 16)
+        self.assertEqual(train_data.norm.shape[0], 16)
+        self.assertEqual(train_data.data.num_hyperedges.item(), 10)
+        self.assertEqual(train_data.data.totedges, 10)
+        self.assertEqual(train_data.data.norm.shape[0], 16)
+        self.assertEqual(
+            set(hyperedges_from_data(
+                train_data,
+                train_data.canonical_hyperedge_index,
+            )),
+            {frozenset(edge) for edge in train_hyperedges},
+        )
+        self.assertEqual(
+            {frozenset(edge) for edge in load_train(
+                data_dict,
+                bs=128,
+                device="cpu",
+                label="pos",
+            ).hyperedges},
+            {frozenset(edge) for edge in train_hyperedges},
+        )
+        self.assertTrue(
+            all(len(edge) <= 2 for edge in hyperedges_from_data(train_data))
+        )
+        self.assertTrue(
+            {frozenset([node]) for node in range(4)}.issubset(
+                set(hyperedges_from_data(train_data))
+            )
         )
 
     def test_observed_cache_and_artifact_validate_split_proportions(self):

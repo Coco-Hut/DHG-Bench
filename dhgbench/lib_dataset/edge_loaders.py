@@ -5,6 +5,7 @@ import torch
 import numpy as np
 from lib_utils.utils import fix_seed
 from lib_dataset.edge_sampler import *
+from lib_dataset.preprocessing import construct_v2e_norm, expand_edge_index_tensor
 
 import torch
 import numpy as np
@@ -160,23 +161,38 @@ def build_observed_train_data(data, data_dict, args):
             train_hyperedges,
             num_nodes_from_data(data, train_hyperedges),
         )
-    train_hyperedge_index = hyperedges_to_index(model_hyperedges, args.device)
+    train_hyperedge_index_cpu = hyperedges_to_index(model_hyperedges, "cpu")
+    if getattr(args, "method", None) in ["AllSetformer", "AllDeepSets"]:
+        if getattr(args, "exclude_self", False):
+            train_hyperedge_index_cpu = expand_edge_index_tensor(
+                train_hyperedge_index_cpu,
+            )
+        train_norm_cpu = construct_v2e_norm(
+            train_hyperedge_index_cpu,
+            option=getattr(args, "normtype", "all_one"),
+        )
+    else:
+        train_norm_cpu = torch.ones_like(train_hyperedge_index_cpu[0])
+
+    train_hyperedge_index = train_hyperedge_index_cpu.to(args.device)
+    train_norm = train_norm_cpu.to(args.device)
     canonical_train_hyperedge_index = hyperedges_to_index(
         train_hyperedges,
         "cpu",
     )
+    num_model_hyperedges = len(torch.unique(train_hyperedge_index_cpu[1]))
 
     train_data.canonical_hyperedge_index = canonical_train_hyperedge_index
     train_data.hyperedge_index = train_hyperedge_index
-    train_data.num_hyperedges = len(model_hyperedges)
-    train_data.norm = torch.ones_like(train_hyperedge_index[0])
+    train_data.num_hyperedges = num_model_hyperedges
+    train_data.norm = train_norm
 
     if hasattr(train_data, "data"):
-        train_data.data.edge_index = train_hyperedge_index.detach().cpu()
-        train_data.data.num_hyperedges = torch.tensor([len(model_hyperedges)])
+        train_data.data.edge_index = train_hyperedge_index_cpu
+        train_data.data.num_hyperedges = torch.tensor([num_model_hyperedges])
         if hasattr(train_data.data, "totedges"):
-            train_data.data.totedges = len(model_hyperedges)
-        train_data.data.norm = torch.ones_like(train_data.data.edge_index[0])
+            train_data.data.totedges = num_model_hyperedges
+        train_data.data.norm = train_norm_cpu
 
     return train_data
 
