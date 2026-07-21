@@ -19,6 +19,7 @@ from lib_dataset.edge_loaders import (  # noqa: E402
     hyperedges_from_data,
     load_train,
     load_val,
+    observed_edge_split_dir,
 )
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
 
@@ -76,12 +77,25 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 device="cpu",
             )
             generate_observed_split_hyperedges(data, args, seed=0)
-            split_path = Path(tmpdir) / "trand_observed_v2" / "toy" / "split_0.pt"
+            split_path = (
+                Path(tmpdir)
+                / "trand_observed_v2"
+                / "train_0.6_valid_0.2"
+                / "toy"
+                / "split_0.pt"
+            )
             data_dict = torch.load(split_path, weights_only=False)
 
             args.edge_save_dir = f"{tmpdir}/repeat/"
             generate_observed_split_hyperedges(data, args, seed=0)
-            repeat_path = Path(tmpdir) / "repeat" / "trand_observed_v2" / "toy" / "split_0.pt"
+            repeat_path = (
+                Path(tmpdir)
+                / "repeat"
+                / "trand_observed_v2"
+                / "train_0.6_valid_0.2"
+                / "toy"
+                / "split_0.pt"
+            )
             repeat_data_dict = torch.load(repeat_path, weights_only=False)
             self.assertEqual(data_dict, repeat_data_dict)
 
@@ -92,6 +106,8 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
 
         self.assertEqual(data_dict["edge_pred_protocol"], "observed")
         self.assertEqual(data_dict["edge_split_schema"], OBSERVED_EDGE_SPLIT_SCHEMA)
+        self.assertEqual(data_dict["train_prop"], 0.6)
+        self.assertEqual(data_dict["valid_prop"], 0.2)
         self.assertTrue(train_pos)
         self.assertTrue(valid_pos)
         self.assertTrue(test_pos)
@@ -129,9 +145,11 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         )
         data_dict = {
             "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
             "train_pos": [[0, 1, 2], [2, 3, 4]],
         }
-        args = SimpleNamespace(device="cpu")
+        args = SimpleNamespace(device="cpu", train_prop=0.6, valid_prop=0.2)
 
         train_data = build_observed_train_data(data, data_dict, args)
 
@@ -142,6 +160,36 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
             set(hyperedges_from_data(train_data)),
             {frozenset([0, 1, 2]), frozenset([2, 3, 4])},
         )
+
+    def test_observed_cache_and_artifact_validate_split_proportions(self):
+        args = SimpleNamespace(
+            edge_save_dir="/tmp/splits",
+            edge_split_mode="trand",
+            dname="toy",
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+        )
+        default_dir = observed_edge_split_dir(args)
+        args.train_prop = 0.7
+        args.valid_prop = 0.1
+        custom_dir = observed_edge_split_dir(args)
+
+        self.assertNotEqual(default_dir, custom_dir)
+        self.assertTrue(default_dir.endswith("trand_observed_v2/train_0.6_valid_0.2/toy"))
+        self.assertTrue(custom_dir.endswith("trand_observed_v2/train_0.7_valid_0.1/toy"))
+
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
+        )
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": [[0, 1, 2]],
+        }
+        with self.assertRaisesRegex(ValueError, "incompatible proportions"):
+            build_observed_train_data(data, data_dict, args)
 
     def test_old_observed_split_schema_is_rejected(self):
         data = SimpleNamespace(

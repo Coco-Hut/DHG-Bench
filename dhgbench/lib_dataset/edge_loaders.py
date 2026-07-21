@@ -15,9 +15,14 @@ OBSERVED_EDGE_SPLIT_CACHE = "observed_v2"
 
 
 def observed_edge_split_dir(args):
+    split_config = (
+        f"train_{float(args.train_prop):.12g}_"
+        f"valid_{float(args.valid_prop):.12g}"
+    )
     return os.path.join(
         str(args.edge_save_dir),
         f"{args.edge_split_mode}_{OBSERVED_EDGE_SPLIT_CACHE}",
+        split_config,
         args.dname,
     )
 
@@ -61,6 +66,26 @@ def build_observed_train_data(data, data_dict, args):
         raise ValueError(
             "Observed edge split uses an incompatible schema: "
             f"expected {OBSERVED_EDGE_SPLIT_SCHEMA!r}, got {split_schema!r}"
+        )
+
+    expected_props = {
+        "train_prop": float(args.train_prop),
+        "valid_prop": float(args.valid_prop),
+    }
+    cached_props = {key: data_dict.get(key) for key in expected_props}
+    if any(
+        cached_props[key] is None
+        or not np.isclose(
+            float(cached_props[key]),
+            expected_props[key],
+            rtol=0.0,
+            atol=1e-12,
+        )
+        for key in expected_props
+    ):
+        raise ValueError(
+            "Observed edge split uses incompatible proportions: "
+            f"expected {expected_props}, got {cached_props}"
         )
 
     train_data = copy.deepcopy(data)
@@ -241,7 +266,8 @@ def generate_observed_split_hyperedges(data,args,seed):
     fix_seed(seed_base+seed)
 
     total_idx = list(range(len(HE)))
-    non_cover_idx = [idx for idx in total_idx if idx not in set(base_cover)]
+    base_cover_set = set(base_cover)
+    non_cover_idx = [idx for idx in total_idx if idx not in base_cover_set]
     train_num = max(int(args.train_prop * len(HE)), base_num)
     train_extra_num = min(train_num - base_num, len(non_cover_idx))
     train_idx = list(base_cover) + random.sample(non_cover_idx, train_extra_num)
@@ -283,6 +309,8 @@ def generate_observed_split_hyperedges(data,args,seed):
     torch.save({
         'edge_pred_protocol': 'observed',
         'edge_split_schema': OBSERVED_EDGE_SPLIT_SCHEMA,
+        'train_prop': float(args.train_prop),
+        'valid_prop': float(args.valid_prop),
         'train_pos': train_data,
         'train_mns': train_mns,
         'train_sns': train_sns,
