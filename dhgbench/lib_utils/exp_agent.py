@@ -13,7 +13,7 @@ from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,Hyper
 from lib_dataset.data_perturbation import perturbation
 from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges,generate_ind_split_hyperedges,\
                                     generate_observed_split_hyperedges,generate_observed_ind_split_hyperedges,\
-                                    build_observed_support_data
+                                    build_observed_train_data,observed_edge_split_dir
 from lib_dataset.hg_loaders import generate_split_hypergraphs,generate_hg_loaders
 from lib_models.HNN.preprocessing import algo_preprocessing
 from lib_utils.aggregator import EdgePredictor,MeanAggregator,MaxminAggregator,MaxAggregator,HyperGPredictor
@@ -35,8 +35,8 @@ class ExpAgent:
         if self.args.edge_pred_protocol == 'observed' and self.args.edge_split_mode == 'ind':
             raise ValueError(
                 "The observed edge prediction protocol currently supports only "
-                "--edge_split_mode=trand. The observed ind split is disabled because "
-                "its support graph contains the train positives."
+                "--edge_split_mode=trand. Node-disjoint observed splits require "
+                "inductive encoder support and are not implemented."
             )
         
         metrics_dict = {'train':defaultdict(list),'val':defaultdict(list),'test':defaultdict(list)}
@@ -46,13 +46,17 @@ class ExpAgent:
             fix_seed(seed) 
             
             if self.args.edge_pred_protocol == 'observed':
-                dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}_{self.args.edge_pred_protocol}/{self.args.dname}/"
+                dir_path = observed_edge_split_dir(self.args)
             else:
-                dir_path = f"{self.args.edge_save_dir}{self.args.edge_split_mode}/{self.args.dname}/"
+                dir_path = os.path.join(
+                    str(self.args.edge_save_dir),
+                    self.args.edge_split_mode,
+                    self.args.dname,
+                )
             
             if self.args.edge_split_mode == 'ind':
 
-                file_path = dir_path+f"split_{seed}.pt"
+                file_path = os.path.join(dir_path, f"split_{seed}.pt")
                 if not os.path.exists(file_path):
                     os.makedirs(dir_path, exist_ok=True)
                     if self.args.edge_pred_protocol == 'observed':
@@ -62,7 +66,7 @@ class ExpAgent:
 
             elif self.args.edge_split_mode == 'trand':
                 
-                file_path = dir_path+f"split_{seed}.pt"
+                file_path = os.path.join(dir_path, f"split_{seed}.pt")
                 if not os.path.exists(file_path):
                     os.makedirs(dir_path, exist_ok=True)
                     if self.args.edge_pred_protocol == 'observed':
@@ -76,7 +80,7 @@ class ExpAgent:
                 
             data_dict = torch.load(file_path, weights_only=False)
             if self.args.edge_pred_protocol == 'observed':
-                data_for_edge_pred = build_observed_support_data(data,data_dict,self.args)
+                data_for_edge_pred = build_observed_train_data(data,data_dict,self.args)
                 data_for_edge_pred = algo_preprocessing(data_for_edge_pred,self.args)
             else:
                 data_for_edge_pred = data

@@ -11,10 +11,13 @@ sys.path.insert(0, str(ROOT / "dhgbench"))
 
 from lib_dataset.edge_loaders import (  # noqa: E402
     HEBatchGenerator,
-    build_observed_support_data,
+    OBSERVED_EDGE_SPLIT_SCHEMA,
+    build_observed_train_data,
     deduplicate_hyperedges,
     generate_observed_ind_split_hyperedges,
     generate_observed_split_hyperedges,
+    hyperedges_from_data,
+    load_train,
     load_val,
 )
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
@@ -44,7 +47,7 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
 
         self.assertEqual(unique, [frozenset([0, 1, 2]), frozenset([3, 4, 5]), frozenset([5, 6, 7])])
 
-    def test_observed_protocol_separates_support_targets_and_negatives(self):
+    def test_observed_protocol_uses_train_validation_test_partitions(self):
         hyperedges = [
             [0, 1, 2],
             [2, 3, 4],
@@ -73,57 +76,88 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 device="cpu",
             )
             generate_observed_split_hyperedges(data, args, seed=0)
-            split_path = Path(tmpdir) / "trand_observed" / "toy" / "split_0.pt"
+            split_path = Path(tmpdir) / "trand_observed_v2" / "toy" / "split_0.pt"
             data_dict = torch.load(split_path, weights_only=False)
 
-        support = {frozenset(edge) for edge in data_dict["support_pos"]}
-        train_pos = {frozenset(edge) for edge in data_dict["train_only_pos"]}
-        valid_pos = {frozenset(edge) for edge in data_dict["ground_valid"] + data_dict["valid_only_pos"]}
+            args.edge_save_dir = f"{tmpdir}/repeat/"
+            generate_observed_split_hyperedges(data, args, seed=0)
+            repeat_path = Path(tmpdir) / "repeat" / "trand_observed_v2" / "toy" / "split_0.pt"
+            repeat_data_dict = torch.load(repeat_path, weights_only=False)
+            self.assertEqual(data_dict, repeat_data_dict)
+
+        train_pos = {frozenset(edge) for edge in data_dict["train_pos"]}
+        valid_pos = {frozenset(edge) for edge in data_dict["valid_pos"]}
         test_pos = {frozenset(edge) for edge in data_dict["test_pos"]}
         all_positive = {frozenset(edge) for edge in hyperedges}
 
         self.assertEqual(data_dict["edge_pred_protocol"], "observed")
-        self.assertTrue(support)
+        self.assertEqual(data_dict["edge_split_schema"], OBSERVED_EDGE_SPLIT_SCHEMA)
         self.assertTrue(train_pos)
         self.assertTrue(valid_pos)
         self.assertTrue(test_pos)
-        self.assertTrue(support.isdisjoint(train_pos))
-        self.assertTrue(support.isdisjoint(valid_pos))
-        self.assertTrue(support.isdisjoint(test_pos))
         self.assertTrue(train_pos.isdisjoint(valid_pos))
         self.assertTrue(train_pos.isdisjoint(test_pos))
         self.assertTrue(valid_pos.isdisjoint(test_pos))
-        self.assertEqual(len(support | train_pos | valid_pos | test_pos), len(all_positive))
+        self.assertEqual(train_pos | valid_pos | test_pos, all_positive)
+        self.assertEqual(len(train_pos), int(0.6 * len(all_positive)))
+        self.assertEqual(len(valid_pos), int(0.2 * len(all_positive)))
+        self.assertEqual(
+            {node for edge in train_pos for node in edge},
+            {node for edge in all_positive for node in edge},
+        )
 
+        train_loader = load_train(data_dict, bs=128, device="cpu", label="pos")
         val_loader = load_val(data_dict, bs=128, device="cpu", label="pos")
+        self.assertEqual({frozenset(edge) for edge in train_loader.hyperedges}, train_pos)
         self.assertEqual({frozenset(edge) for edge in val_loader.hyperedges}, valid_pos)
 
-        for key in [
-            "train_mns",
-            "train_sns",
-            "train_cns",
-            "valid_mns",
-            "valid_sns",
-            "valid_cns",
-            "test_mns",
-            "test_sns",
-            "test_cns",
+        for split_name, positives in [
+            ("train", train_pos),
+            ("valid", valid_pos),
+            ("test", test_pos),
         ]:
-            self.assertTrue({frozenset(edge) for edge in data_dict[key]}.isdisjoint(all_positive), key)
+            for negative_kind in ["mns", "sns", "cns"]:
+                key = f"{split_name}_{negative_kind}"
+                negatives = {frozenset(edge) for edge in data_dict[key]}
+                self.assertEqual(len(data_dict[key]), len(positives), key)
+                self.assertTrue(negatives.isdisjoint(all_positive), key)
 
-    def test_support_data_uses_only_observed_hyperedges(self):
+    def test_train_data_uses_all_and_only_training_hyperedges(self):
         data = SimpleNamespace(
             hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4], [4, 5, 6]]),
             data=SimpleNamespace(),
         )
-        data_dict = {"support_pos": [[0, 1, 2], [2, 3, 4]]}
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "train_pos": [[0, 1, 2], [2, 3, 4]],
+        }
         args = SimpleNamespace(device="cpu")
 
-        support_data = build_observed_support_data(data, data_dict, args)
+        train_data = build_observed_train_data(data, data_dict, args)
 
-        self.assertEqual(support_data.num_hyperedges, 2)
-        self.assertEqual(set(support_data.hyperedge_index[1].tolist()), {0, 1})
-        self.assertEqual(support_data.hyperedge_index.shape[1], 6)
+        self.assertEqual(train_data.num_hyperedges, 2)
+        self.assertEqual(set(train_data.hyperedge_index[1].tolist()), {0, 1})
+        self.assertEqual(train_data.hyperedge_index.shape[1], 6)
+        self.assertEqual(
+            set(hyperedges_from_data(train_data)),
+            {frozenset([0, 1, 2]), frozenset([2, 3, 4])},
+        )
+
+    def test_old_observed_split_schema_is_rejected(self):
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index([[0, 1, 2], [2, 3, 4]]),
+        )
+        old_data_dict = {
+            "support_pos": [[0, 1, 2]],
+            "train_only_pos": [[2, 3, 4]],
+        }
+
+        with self.assertRaisesRegex(ValueError, "incompatible schema"):
+            build_observed_train_data(
+                data,
+                old_data_dict,
+                SimpleNamespace(device="cpu"),
+            )
 
     def test_observed_ind_split_is_disabled(self):
         data = SimpleNamespace(

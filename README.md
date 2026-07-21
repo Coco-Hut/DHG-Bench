@@ -118,10 +118,10 @@ python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=
 By default, `edge_pred` uses the original DHG-Bench protocol for backward compatibility. To evaluate a held-out hyperedge prediction protocol where validation/test target hyperedges are removed from the message-passing hypergraph, use:
 
 ```bash
-python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=True --edge_pred_protocol=observed
+python main.py --dname=pubmed --task_type=edge_pred --method=EDHNN --is_default=True --edge_pred_protocol=observed --edge_split_mode=trand
 ```
 
-In `--edge_pred_protocol=observed`, DHG-Bench builds node embeddings on the observed/support hypergraph only, evaluates separate train/validation/test positive hyperedges, and samples negatives while excluding all true hyperedges. This avoids structural leakage from held-out hyperedges and fixes validation positives to use the validation target set rather than training positives.
+In `--edge_pred_protocol=observed`, DHG-Bench splits positive hyperedges into approximately 60% train, 20% validation, and 20% test partitions. The complete training partition is used both as the message-passing hypergraph and as supervised training positives, while validation/test positives remain structurally held out. Negative sampling excludes all true hyperedges. Observed split caches use a versioned directory so older support-only split files are not reused.
 
 For example, to run the TFHNN method on the stream_player dataset for a hypergraph classification task, use the following command:
 

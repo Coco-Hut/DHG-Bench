@@ -10,6 +10,18 @@ import torch
 import numpy as np
 from collections import defaultdict
 
+OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_v1"
+OBSERVED_EDGE_SPLIT_CACHE = "observed_v2"
+
+
+def observed_edge_split_dir(args):
+    return os.path.join(
+        str(args.edge_save_dir),
+        f"{args.edge_split_mode}_{OBSERVED_EDGE_SPLIT_CACHE}",
+        args.dname,
+    )
+
+
 def hyperedges_from_data(data):
     hyperedge_index = data.hyperedge_index.to('cpu')
     hyperedges = defaultdict(set)
@@ -43,21 +55,28 @@ def hyperedges_to_index(hyperedges, device):
         return torch.empty((2, 0), dtype=torch.long, device=device)
     return torch.tensor([node_ids, edge_ids], dtype=torch.long, device=device)
 
-def build_observed_support_data(data, data_dict, args):
-    support_data = copy.deepcopy(data)
-    support_hyperedges = [frozenset(edge) for edge in data_dict.get("support_pos", [])]
-    support_hyperedge_index = hyperedges_to_index(support_hyperedges, args.device)
+def build_observed_train_data(data, data_dict, args):
+    split_schema = data_dict.get("edge_split_schema")
+    if split_schema != OBSERVED_EDGE_SPLIT_SCHEMA:
+        raise ValueError(
+            "Observed edge split uses an incompatible schema: "
+            f"expected {OBSERVED_EDGE_SPLIT_SCHEMA!r}, got {split_schema!r}"
+        )
 
-    support_data.hyperedge_index = support_hyperedge_index
-    support_data.num_hyperedges = len(support_hyperedges)
-    support_data.norm = torch.ones_like(support_hyperedge_index[0])
+    train_data = copy.deepcopy(data)
+    train_hyperedges = [frozenset(edge) for edge in data_dict["train_pos"]]
+    train_hyperedge_index = hyperedges_to_index(train_hyperedges, args.device)
 
-    if hasattr(support_data, "data"):
-        support_data.data.edge_index = support_hyperedge_index.detach().cpu()
-        support_data.data.num_hyperedges = torch.tensor([len(support_hyperedges)])
-        support_data.data.norm = torch.ones_like(support_data.data.edge_index[0])
+    train_data.hyperedge_index = train_hyperedge_index
+    train_data.num_hyperedges = len(train_hyperedges)
+    train_data.norm = torch.ones_like(train_hyperedge_index[0])
 
-    return support_data
+    if hasattr(train_data, "data"):
+        train_data.data.edge_index = train_hyperedge_index.detach().cpu()
+        train_data.data.num_hyperedges = torch.tensor([len(train_hyperedges)])
+        train_data.data.norm = torch.ones_like(train_data.data.edge_index[0])
+
+    return train_data
 
 def generate_ind_split_hyperedges(data, args, seed):
     """
@@ -125,67 +144,9 @@ def generate_ind_split_hyperedges(data, args, seed):
 def generate_observed_ind_split_hyperedges(data, args, seed):
     raise ValueError(
         "The observed edge prediction protocol currently supports only "
-        "--edge_split_mode=trand. The observed ind split is disabled because "
-        "its support graph contains the train positives."
+        "--edge_split_mode=trand. Node-disjoint observed splits require "
+        "inductive encoder support and are not implemented."
     )
-
-    HE = hyperedges_from_data(data)
-
-    ratio = (args.train_prop, args.valid_prop, 1 - args.train_prop - args.valid_prop)
-
-    seed_base = 42
-    fix_seed(seed_base+seed)
-
-    all_nodes = set()
-    for e in HE:
-        all_nodes |= e
-    all_nodes = list(all_nodes)
-    np.random.shuffle(all_nodes)
-
-    N = len(all_nodes)
-    r1, r2, r3 = ratio
-
-    T1 = int(N * r1)
-    T2 = int(N * (r1 + r2))
-
-    train_nodes = set(all_nodes[:T1])
-    valid_nodes = set(all_nodes[T1:T2])
-    test_nodes  = set(all_nodes[T2:])
-
-    GP_train = []
-    GP_valid = []
-    GP_test  = []
-
-    for e in HE:
-        if e.issubset(train_nodes):
-            GP_train.append(e)
-        elif e.issubset(valid_nodes):
-            GP_valid.append(e)
-        elif e.issubset(test_nodes):
-            GP_test.append(e)
-
-    train_size, valid_size, test_size = len(GP_train), len(GP_valid), len(GP_test)
-
-    print(f'train_size: {train_size}, valid_size: {valid_size}, test_size: {test_size}')
-
-    all_positive_hyperedges = set(HE)
-    train_mns, train_sns, train_cns = neg_generator_excluding(GP_train, train_size, all_positive_hyperedges)
-    valid_mns, valid_sns, valid_cns = neg_generator_excluding(GP_train + GP_valid, valid_size, all_positive_hyperedges)
-    test_mns, test_sns, test_cns = neg_generator_excluding(GP_train + GP_valid, test_size, all_positive_hyperedges)
-
-    ground_train_data = []
-    ground_valid_data = []
-    train_only_data = [list(edge) for edge in GP_train]
-    valid_only_data = [list(edge) for edge in GP_valid]
-    test_data = [list(edge) for edge in GP_test]
-    support_data = [list(edge) for edge in GP_train]
-
-    torch.save({'edge_pred_protocol': 'observed', 'support_pos': support_data,
-    'ground_train': ground_train_data, 'ground_valid': ground_valid_data, \
-    'train_only_pos': train_only_data, 'train_mns': train_mns, 'train_sns' : train_sns, 'train_cns' : train_cns,\
-    'valid_only_pos': valid_only_data, 'valid_mns': valid_mns, 'valid_sns' : valid_sns, 'valid_cns' : valid_cns, \
-    'test_pos': test_data, 'test_mns': test_mns, 'test_sns' : test_sns, 'test_cns' : test_cns},
-    f'{args.edge_save_dir}{args.edge_split_mode}_{args.edge_pred_protocol}/{args.dname}/split_{seed}.pt')
 
 def generate_split_hyperedges(data,args,seed):
 
@@ -273,69 +234,68 @@ def generate_observed_split_hyperedges(data,args,seed):
     assert union == get_union(tmp)
     base_num = len(base_cover)
 
-    os.makedirs(f'{args.edge_save_dir}{args.edge_split_mode}_{args.edge_pred_protocol}/{args.dname}', exist_ok=True)
+    split_dir = observed_edge_split_dir(args)
+    os.makedirs(split_dir, exist_ok=True)
 
     seed_base = 42
     fix_seed(seed_base+seed)
 
-    ground_num = max(int(0.6*len(HE)) - base_num,0)
     total_idx = list(range(len(HE)))
-    ground_idx = list(set(total_idx)-set(base_cover))
-    ground_idx = random.sample(ground_idx, ground_num)
-    ground_num += base_num
-    ground_idx += base_cover
-    ground_valid_num = ground_num//6
-    ground_valid_idx = random.sample(ground_idx, ground_valid_num)
-    ground_train_num = ground_num - ground_valid_num
+    non_cover_idx = [idx for idx in total_idx if idx not in set(base_cover)]
+    train_num = max(int(args.train_prop * len(HE)), base_num)
+    train_extra_num = min(train_num - base_num, len(non_cover_idx))
+    train_idx = list(base_cover) + random.sample(non_cover_idx, train_extra_num)
+    train_idx_set = set(train_idx)
 
-    ground_train_data = []
-    ground_valid_data = []
-    pred_data = []
-    for idx in total_idx :
-        if idx in ground_idx:
-            if idx in ground_valid_idx:
-                ground_valid_data.append(HE[idx])
-            else:
-                ground_train_data.append(HE[idx])
-        else :
-            pred_data.append(HE[idx])
+    held_out_idx = [idx for idx in total_idx if idx not in train_idx_set]
+    random.shuffle(held_out_idx)
+    valid_num = min(int(args.valid_prop * len(HE)), len(held_out_idx))
+    valid_idx = held_out_idx[:valid_num]
+    test_idx = held_out_idx[valid_num:]
 
-    valid_only_num = int(0.25*len(pred_data))
-    train_only_num = int(0.25*len(pred_data))
-    test_num = len(pred_data) - (valid_only_num + train_only_num)
-
-    random.shuffle(pred_data)
-    train_only_data = pred_data[:train_only_num]
-    valid_only_data = pred_data[train_only_num:-test_num]
-    test_data = pred_data[-test_num:]
+    train_data = [HE[idx] for idx in train_idx]
+    valid_data = [HE[idx] for idx in valid_idx]
+    test_data = [HE[idx] for idx in test_idx]
 
     all_positive_hyperedges = set(HE)
-    GP_train = ground_train_data + train_only_data
-    GP_valid = ground_train_data + train_only_data + ground_valid_data + valid_only_data
+    GP_train = train_data
+    GP_valid = train_data + valid_data
     GP_test = GP_valid
 
-    train_mns, train_sns, train_cns = neg_generator_excluding(GP_train, train_only_num, all_positive_hyperedges)
-    valid_mns, valid_sns, valid_cns = neg_generator_excluding(GP_valid, ground_valid_num+valid_only_num, all_positive_hyperedges)
-    test_mns, test_sns, test_cns = neg_generator_excluding(GP_test, test_num, all_positive_hyperedges)
+    train_mns, train_sns, train_cns = neg_generator_excluding(
+        GP_train, len(train_data), all_positive_hyperedges
+    )
+    valid_mns, valid_sns, valid_cns = neg_generator_excluding(
+        GP_valid, len(valid_data), all_positive_hyperedges
+    )
+    test_mns, test_sns, test_cns = neg_generator_excluding(
+        GP_test, len(test_data), all_positive_hyperedges
+    )
 
-    support_data = [list(edge) for edge in ground_train_data]
-    ground_train_data = [list(edge) for edge in ground_train_data]
-    ground_valid_data = [list(edge) for edge in ground_valid_data]
-    train_only_data = [list(edge) for edge in train_only_data]
-    valid_only_data = [list(edge) for edge in valid_only_data]
+    train_data = [list(edge) for edge in train_data]
+    valid_data = [list(edge) for edge in valid_data]
     test_data = [list(edge) for edge in test_data]
 
-    print(f"support {len(support_data)}")
-    print(f"train pos {len(train_only_data)}, neg {len(train_mns)}")
-    print(f"valid pos {len(ground_valid_data)} + {len(valid_only_data)} = {len(ground_valid_data + valid_only_data)}, neg {len(valid_mns)}")
+    print(f"train pos {len(train_data)}, neg {len(train_mns)}")
+    print(f"valid pos {len(valid_data)}, neg {len(valid_mns)}")
     print(f"test pos {len(test_data)}, neg {len(test_mns)}")
 
-    torch.save({'edge_pred_protocol': 'observed', 'support_pos': support_data,
-        'ground_train': ground_train_data, 'ground_valid': ground_valid_data, \
-        'train_only_pos': train_only_data, 'train_mns': train_mns, 'train_sns' : train_sns, 'train_cns' : train_cns,\
-        'valid_only_pos': valid_only_data, 'valid_mns': valid_mns, 'valid_sns' : valid_sns, 'valid_cns' : valid_cns, \
-        'test_pos': test_data, 'test_mns': test_mns, 'test_sns' : test_sns, 'test_cns' : test_cns},
-        f'{args.edge_save_dir}{args.edge_split_mode}_{args.edge_pred_protocol}/{args.dname}/split_{seed}.pt')
+    torch.save({
+        'edge_pred_protocol': 'observed',
+        'edge_split_schema': OBSERVED_EDGE_SPLIT_SCHEMA,
+        'train_pos': train_data,
+        'train_mns': train_mns,
+        'train_sns': train_sns,
+        'train_cns': train_cns,
+        'valid_pos': valid_data,
+        'valid_mns': valid_mns,
+        'valid_sns': valid_sns,
+        'valid_cns': valid_cns,
+        'test_pos': test_data,
+        'test_mns': test_mns,
+        'test_sns': test_sns,
+        'test_cns': test_cns,
+    }, os.path.join(split_dir, f'split_{seed}.pt'))
 
 def generate_edge_loaders(data_dict, args):
 
@@ -372,7 +332,7 @@ def generate_edge_loaders(data_dict, args):
 def load_train(data_dict, bs, device, label):
     if label=="pos":
         if data_dict.get("edge_pred_protocol") == "observed":
-            train_pos = data_dict["train_only_pos"]
+            train_pos = data_dict["train_pos"]
         else:
             train_pos = data_dict["train_only_pos"] + data_dict["ground_train"]
         train_pos_label = [1 for i in range(len(train_pos))]
@@ -392,7 +352,7 @@ def load_train(data_dict, bs, device, label):
 def load_val(data_dict, bs, device, label):
     if label=="pos":
         if data_dict.get("edge_pred_protocol") == "observed":
-            val = data_dict["ground_valid"] + data_dict["valid_only_pos"]
+            val = data_dict["valid_pos"]
         else:
             val = data_dict["train_only_pos"] + data_dict["ground_train"]
         val_label = [1 for i in range(len(val))]
