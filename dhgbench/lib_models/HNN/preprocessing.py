@@ -19,7 +19,7 @@ from tqdm import tqdm
 import os 
 from torch_geometric.utils import remove_self_loops
 
-def algo_preprocessing(data,args):
+def algo_preprocessing(data,args,ehnn_cache_path=None):
 
     if args.method =='LEGCN':
         data = legcn_preprocessing(data,args)  # line_expansion
@@ -34,7 +34,11 @@ def algo_preprocessing(data,args):
     elif args.method == 'DPHGNN':
         data = dphgnn_preprocessing(data,args) 
     elif args.method == 'EHNN':
-        data = ehnn_preprocessing(data,args)
+        data = ehnn_preprocessing(
+            data,
+            args,
+            cache_path=ehnn_cache_path,
+        )
     elif args.method in ['PlainUnigencoder']:
         data =uni_expansion(data,args)
     elif args.method == 'HyperGT':
@@ -836,7 +840,11 @@ class NeighborFinder:
 
 #---------------------- EHNN preprocessing utils -------------------------
 
-def ehnn_preprocessing(data,args,folder='lib_ehnn_cache'):
+def ehnn_preprocessing(
+        data,
+        args,
+        folder='lib_ehnn_cache',
+        cache_path=None):
     
     src_data = copy.deepcopy(data)
     data = data.to('cpu')
@@ -889,9 +897,13 @@ def ehnn_preprocessing(data,args,folder='lib_ehnn_cache'):
         )
         edge_orders = torch.sparse.sum(incidence, 0).to_dense().long().to(args.device)
 
-    os.makedirs(f"./{folder}", exist_ok=True)
+    if cache_path is None:
+        cache_path = os.path.join('.', folder, f'{args.dname}.pt')
+    cache_parent = os.path.dirname(cache_path)
+    if cache_parent:
+        os.makedirs(cache_parent, exist_ok=True)
     
-    if not osp.isfile(f"./{folder}/{args.dname}.pt") or args.task_type=='hg_cls':
+    if not osp.isfile(cache_path) or args.task_type=='hg_cls':
         print(f"preprocessing {args.dname}")
         overlaps = None
         masks = None
@@ -934,10 +946,14 @@ def ehnn_preprocessing(data,args,folder='lib_ehnn_cache'):
             suffix_normalizer=suffix_normalizer,
         )
 
-        torch.save(ehnn_cache, f"./{folder}/{args.dname}.pt")
+        torch.save(ehnn_cache, cache_path)
         print(f"saved ehnn_cache for {args.dname}")
     else:
-        ehnn_cache = torch.load(f"./{folder}/{args.dname}.pt")
+        ehnn_cache = torch.load(
+            cache_path,
+            map_location=args.device,
+            weights_only=False,
+        )
     print(f"number of mask channels: {ehnn_cache['n_overlaps']}")
     
     src_data.ehnn_cache = ehnn_cache

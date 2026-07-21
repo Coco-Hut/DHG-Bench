@@ -21,13 +21,16 @@ from lib_dataset.edge_loaders import (  # noqa: E402
     hyperedges_from_data,
     load_train,
     load_val,
+    observed_ehnn_cache_path,
     observed_edge_split_dir,
 )
 from lib_dataset.preprocessing import (  # noqa: E402
     data_processing,
     expand_edge_index_tensor,
 )
+from lib_models.HNN.preprocessing import algo_preprocessing  # noqa: E402
 from lib_utils.metrics import evaluate_edge_loader  # noqa: E402
+from main import should_defer_model_preprocessing  # noqa: E402
 from parameter_parser import set_task_args  # noqa: E402
 
 
@@ -39,6 +42,24 @@ def make_hyperedge_index(hyperedges):
             rows.append(node)
             cols.append(edge_id)
     return torch.tensor([rows, cols], dtype=torch.long)
+
+
+class TensorData(SimpleNamespace):
+    def to(self, device):
+        for name in ("x", "hyperedge_index", "y"):
+            value = getattr(self, name, None)
+            if torch.is_tensor(value):
+                setattr(self, name, value.to(device))
+        return self
+
+
+def make_tensor_data(hyperedges, num_nodes):
+    return TensorData(
+        x=torch.ones(num_nodes, 2),
+        hyperedge_index=make_hyperedge_index(hyperedges),
+        num_nodes=num_nodes,
+        data=SimpleNamespace(),
+    )
 
 
 def make_raw_preprocessing_data():
@@ -56,6 +77,26 @@ def make_raw_preprocessing_data():
 
 
 class ObservedEdgePredictionProtocolTest(unittest.TestCase):
+    def test_model_preprocessing_is_deferred_only_for_observed_edge_prediction(self):
+        configurations = [
+            ("edge_pred", "observed", True),
+            ("edge_pred", "legacy", False),
+            ("node_cls", "observed", False),
+            ("hg_cls", "observed", False),
+        ]
+        for task_type, edge_pred_protocol, expected in configurations:
+            with self.subTest(
+                task_type=task_type,
+                edge_pred_protocol=edge_pred_protocol,
+            ):
+                self.assertEqual(
+                    should_defer_model_preprocessing(SimpleNamespace(
+                        task_type=task_type,
+                        edge_pred_protocol=edge_pred_protocol,
+                    )),
+                    expected,
+                )
+
     def test_expand_edge_index_supports_zero_based_and_offset_ids(self):
         zero_based = make_hyperedge_index(
             [[0, 1, 2], [1, 3], [4]],
@@ -511,6 +552,126 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 set(hyperedges_from_data(train_data))
             )
         )
+
+    def test_observed_hypergt_preprocesses_reconstructed_graph_once(self):
+        full_hyperedges = [
+            [0, 1, 2],
+            [1, 2, 3],
+            [2, 3, 4],
+            [0, 3, 4],
+        ]
+        data = make_tensor_data(full_hyperedges, num_nodes=5)
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": full_hyperedges[:2],
+        }
+        args = SimpleNamespace(
+            method="HyperGT",
+            device="cpu",
+            train_prop=0.6,
+            valid_prop=0.2,
+            add_self_loop=False,
+        )
+
+        train_data = build_observed_train_data(data, data_dict, args)
+        train_data = algo_preprocessing(train_data, args)
+
+        self.assertEqual(train_data.H.shape, torch.Size([5, 2]))
+        self.assertEqual(train_data.num_tokens, 7)
+        self.assertEqual(train_data.x.shape, torch.Size([7, 2]))
+        self.assertEqual(data.x.shape, torch.Size([5, 2]))
+
+    def test_observed_ehnn_cache_is_split_specific(self):
+        full_hyperedges = [
+            [0, 1, 2],
+            [1, 2, 3],
+            [2, 3, 4],
+            [0, 3, 4],
+        ]
+        data_dict = {
+            "edge_split_schema": OBSERVED_EDGE_SPLIT_SCHEMA,
+            "edge_pred_protocol": "observed",
+            "train_prop": 0.6,
+            "valid_prop": 0.2,
+            "train_pos": full_hyperedges[:2],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                method="EHNN",
+                dname="toy",
+                task_type="edge_pred",
+                device="cpu",
+                chunk_size=100,
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                add_self_loop=False,
+            )
+            legacy_cache_path = Path(tmpdir) / "legacy_ehnn.pt"
+            full_data = algo_preprocessing(
+                make_tensor_data(full_hyperedges, num_nodes=5),
+                args,
+                ehnn_cache_path=legacy_cache_path,
+            )
+
+            split_cache_path = Path(observed_ehnn_cache_path(args, seed=0))
+            other_seed_cache_path = Path(observed_ehnn_cache_path(args, seed=1))
+            custom_prop_args = SimpleNamespace(**vars(args))
+            custom_prop_args.train_prop = 0.8
+            custom_prop_args.valid_prop = 0.1
+            custom_prop_cache_path = Path(observed_ehnn_cache_path(
+                custom_prop_args,
+                seed=0,
+            ))
+            train_data = build_observed_train_data(
+                make_tensor_data(full_hyperedges, num_nodes=5),
+                data_dict,
+                args,
+            )
+            train_data = algo_preprocessing(
+                train_data,
+                args,
+                ehnn_cache_path=split_cache_path,
+            )
+
+            self.assertEqual(full_data.ehnn_cache["incidence"].shape, (5, 4))
+            self.assertEqual(train_data.ehnn_cache["incidence"].shape, (5, 2))
+            self.assertNotEqual(legacy_cache_path, split_cache_path)
+            self.assertNotEqual(split_cache_path, other_seed_cache_path)
+            self.assertNotEqual(split_cache_path, custom_prop_cache_path)
+            self.assertEqual(
+                split_cache_path.parent,
+                Path(observed_edge_split_dir(args)),
+            )
+            self.assertTrue(split_cache_path.is_file())
+
+            with patch(
+                "lib_models.HNN.preprocessing.build_mask_chunk",
+            ) as build_mask_chunk, patch(
+                "lib_models.HNN.preprocessing.build_mask",
+            ) as build_mask:
+                cached_train_data = build_observed_train_data(
+                    make_tensor_data(full_hyperedges, num_nodes=5),
+                    data_dict,
+                    args,
+                )
+                cached_train_data = algo_preprocessing(
+                    cached_train_data,
+                    args,
+                    ehnn_cache_path=split_cache_path,
+                )
+
+            build_mask_chunk.assert_not_called()
+            build_mask.assert_not_called()
+            self.assertEqual(
+                cached_train_data.ehnn_cache["incidence"].shape,
+                (5, 2),
+            )
 
     def test_observed_cache_and_artifact_validate_split_proportions(self):
         args = SimpleNamespace(

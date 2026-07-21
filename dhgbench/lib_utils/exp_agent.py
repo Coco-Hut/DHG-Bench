@@ -13,7 +13,7 @@ from lib_models.HNN import HCHA,HyperGCN,HNHN,SetGNN,UniGNN,UniGCNII,LEGCN,Hyper
 from lib_dataset.data_perturbation import perturbation
 from lib_dataset.edge_loaders import generate_edge_loaders,generate_split_hyperedges,generate_ind_split_hyperedges,\
                                     generate_observed_split_hyperedges,generate_observed_ind_split_hyperedges,\
-                                    build_observed_train_data,observed_edge_split_dir
+                                    build_observed_train_data,observed_edge_split_dir,observed_ehnn_cache_path
 from lib_dataset.hg_loaders import generate_split_hypergraphs,generate_hg_loaders
 from lib_models.HNN.preprocessing import algo_preprocessing
 from lib_utils.aggregator import EdgePredictor,MeanAggregator,MaxminAggregator,MaxAggregator,HyperGPredictor
@@ -81,7 +81,17 @@ class ExpAgent:
             data_dict = torch.load(file_path, weights_only=False)
             if self.args.edge_pred_protocol == 'observed':
                 data_for_edge_pred = build_observed_train_data(data,data_dict,self.args)
-                data_for_edge_pred = algo_preprocessing(data_for_edge_pred,self.args)
+                ehnn_cache_path = None
+                if self.args.method == 'EHNN':
+                    ehnn_cache_path = observed_ehnn_cache_path(
+                        self.args,
+                        seed,
+                    )
+                data_for_edge_pred = algo_preprocessing(
+                    data_for_edge_pred,
+                    self.args,
+                    ehnn_cache_path=ehnn_cache_path,
+                )
             else:
                 data_for_edge_pred = data
             batch_loaders = generate_edge_loaders(data_dict,self.args)

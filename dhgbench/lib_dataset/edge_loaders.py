@@ -54,6 +54,13 @@ def observed_edge_split_dir(args):
     )
 
 
+def observed_ehnn_cache_path(args, seed):
+    return os.path.join(
+        observed_edge_split_dir(args),
+        f"ehnn_cache_{seed}.pt",
+    )
+
+
 def hyperedges_from_data(data, hyperedge_index=None):
     if hyperedge_index is None:
         hyperedge_index = data.hyperedge_index
