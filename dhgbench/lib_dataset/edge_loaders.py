@@ -14,10 +14,30 @@ OBSERVED_EDGE_SPLIT_SCHEMA = "train_valid_test_v1"
 OBSERVED_EDGE_SPLIT_CACHE = "observed_v2"
 
 
+def validate_observed_split_proportions(args):
+    train_prop = float(args.train_prop)
+    valid_prop = float(args.valid_prop)
+    if (
+        not np.isfinite(train_prop)
+        or not np.isfinite(valid_prop)
+        or train_prop <= 0
+        or valid_prop <= 0
+        or train_prop + valid_prop >= 1
+    ):
+        raise ValueError(
+            "Observed edge split proportions must be finite and satisfy "
+            "0 < train_prop, 0 < valid_prop, and "
+            "train_prop + valid_prop < 1; "
+            f"got train_prop={train_prop!r}, valid_prop={valid_prop!r}"
+        )
+    return train_prop, valid_prop
+
+
 def observed_edge_split_dir(args):
+    train_prop, valid_prop = validate_observed_split_proportions(args)
     split_config = (
-        f"train_{float(args.train_prop):.12g}_"
-        f"valid_{float(args.valid_prop):.12g}"
+        f"train_{train_prop:.12g}_"
+        f"valid_{valid_prop:.12g}"
     )
     return os.path.join(
         str(args.edge_save_dir),
@@ -68,10 +88,8 @@ def build_observed_train_data(data, data_dict, args):
             f"expected {OBSERVED_EDGE_SPLIT_SCHEMA!r}, got {split_schema!r}"
         )
 
-    expected_props = {
-        "train_prop": float(args.train_prop),
-        "valid_prop": float(args.valid_prop),
-    }
+    train_prop, valid_prop = validate_observed_split_proportions(args)
+    expected_props = {"train_prop": train_prop, "valid_prop": valid_prop}
     cached_props = {key: data_dict.get(key) for key in expected_props}
     if any(
         cached_props[key] is None
@@ -251,13 +269,19 @@ def generate_split_hyperedges(data,args,seed):
 
 def generate_observed_split_hyperedges(data,args,seed):
 
+    train_prop, valid_prop = validate_observed_split_proportions(args)
     HE = hyperedges_from_data(data)
 
-    base_cover = get_cover_idx(HE)
-    union = get_union(HE)
-    tmp = [HE[idx] for idx in base_cover]
-    assert union == get_union(tmp)
-    base_num = len(base_cover)
+    train_num = int(train_prop * len(HE))
+    valid_num = int(valid_prop * len(HE))
+    test_num = len(HE) - train_num - valid_num
+    if min(train_num, valid_num, test_num) <= 0:
+        raise ValueError(
+            "Observed edge split proportions must produce non-empty train, "
+            "validation, and test partitions; "
+            f"got {len(HE)} hyperedges and partition sizes "
+            f"train={train_num}, valid={valid_num}, test={test_num}"
+        )
 
     split_dir = observed_edge_split_dir(args)
     os.makedirs(split_dir, exist_ok=True)
@@ -266,18 +290,10 @@ def generate_observed_split_hyperedges(data,args,seed):
     fix_seed(seed_base+seed)
 
     total_idx = list(range(len(HE)))
-    base_cover_set = set(base_cover)
-    non_cover_idx = [idx for idx in total_idx if idx not in base_cover_set]
-    train_num = max(int(args.train_prop * len(HE)), base_num)
-    train_extra_num = min(train_num - base_num, len(non_cover_idx))
-    train_idx = list(base_cover) + random.sample(non_cover_idx, train_extra_num)
-    train_idx_set = set(train_idx)
-
-    held_out_idx = [idx for idx in total_idx if idx not in train_idx_set]
-    random.shuffle(held_out_idx)
-    valid_num = min(int(args.valid_prop * len(HE)), len(held_out_idx))
-    valid_idx = held_out_idx[:valid_num]
-    test_idx = held_out_idx[valid_num:]
+    random.shuffle(total_idx)
+    train_idx = total_idx[:train_num]
+    valid_idx = total_idx[train_num:train_num + valid_num]
+    test_idx = total_idx[train_num + valid_num:]
 
     train_data = [HE[idx] for idx in train_idx]
     valid_data = [HE[idx] for idx in valid_idx]
@@ -309,8 +325,8 @@ def generate_observed_split_hyperedges(data,args,seed):
     torch.save({
         'edge_pred_protocol': 'observed',
         'edge_split_schema': OBSERVED_EDGE_SPLIT_SCHEMA,
-        'train_prop': float(args.train_prop),
-        'valid_prop': float(args.valid_prop),
+        'train_prop': train_prop,
+        'valid_prop': valid_prop,
         'train_pos': train_data,
         'train_mns': train_mns,
         'train_sns': train_sns,

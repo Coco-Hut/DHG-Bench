@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import torch
 
@@ -117,11 +118,6 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         self.assertEqual(train_pos | valid_pos | test_pos, all_positive)
         self.assertEqual(len(train_pos), int(0.6 * len(all_positive)))
         self.assertEqual(len(valid_pos), int(0.2 * len(all_positive)))
-        self.assertEqual(
-            {node for edge in train_pos for node in edge},
-            {node for edge in all_positive for node in edge},
-        )
-
         train_loader = load_train(data_dict, bs=128, device="cpu", label="pos")
         val_loader = load_val(data_dict, bs=128, device="cpu", label="pos")
         self.assertEqual({frozenset(edge) for edge in train_loader.hyperedges}, train_pos)
@@ -137,6 +133,35 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
                 negatives = {frozenset(edge) for edge in data_dict[key]}
                 self.assertEqual(len(data_dict[key]), len(positives), key)
                 self.assertTrue(negatives.isdisjoint(all_positive), key)
+
+    def test_observed_split_does_not_force_training_to_cover_every_node(self):
+        hyperedges = [list(range(3 * idx, 3 * idx + 3)) for idx in range(10)]
+        data = SimpleNamespace(hyperedge_index=make_hyperedge_index(hyperedges))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            args = SimpleNamespace(
+                train_prop=0.6,
+                valid_prop=0.2,
+                edge_save_dir=tmpdir,
+                edge_split_mode="trand",
+                edge_pred_protocol="observed",
+                dname="toy",
+                device="cpu",
+            )
+            with patch(
+                "lib_dataset.edge_loaders.neg_generator_excluding",
+                return_value=([], [], []),
+            ):
+                generate_observed_split_hyperedges(data, args, seed=0)
+            split_path = Path(observed_edge_split_dir(args)) / "split_0.pt"
+            data_dict = torch.load(split_path, weights_only=False)
+
+        self.assertEqual(len(data_dict["train_pos"]), 6)
+        self.assertEqual(len(data_dict["valid_pos"]), 2)
+        self.assertEqual(len(data_dict["test_pos"]), 2)
+        train_nodes = {node for edge in data_dict["train_pos"] for node in edge}
+        all_nodes = {node for edge in hyperedges for node in edge}
+        self.assertLess(len(train_nodes), len(all_nodes))
 
     def test_train_data_uses_all_and_only_training_hyperedges(self):
         data = SimpleNamespace(
@@ -190,6 +215,41 @@ class ObservedEdgePredictionProtocolTest(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "incompatible proportions"):
             build_observed_train_data(data, data_dict, args)
+
+    def test_observed_split_rejects_invalid_or_empty_proportions(self):
+        args = SimpleNamespace(
+            edge_save_dir="/tmp/splits",
+            edge_split_mode="trand",
+            dname="toy",
+            train_prop=0.6,
+            valid_prop=0.2,
+        )
+        invalid_proportions = [
+            (0.0, 0.2),
+            (-0.1, 0.2),
+            (0.6, 0.0),
+            (0.6, -0.1),
+            (0.8, 0.2),
+            (0.9, 0.2),
+            (float("inf"), 0.2),
+            (0.6, float("nan")),
+        ]
+        for train_prop, valid_prop in invalid_proportions:
+            with self.subTest(train_prop=train_prop, valid_prop=valid_prop):
+                args.train_prop = train_prop
+                args.valid_prop = valid_prop
+                with self.assertRaisesRegex(ValueError, "proportions must be finite"):
+                    observed_edge_split_dir(args)
+
+        args.train_prop = 0.6
+        args.valid_prop = 0.2
+        data = SimpleNamespace(
+            hyperedge_index=make_hyperedge_index(
+                [[0, 1, 2], [2, 3, 4], [4, 5, 6], [0, 6, 7]]
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "non-empty train"):
+            generate_observed_split_hyperedges(data, args, seed=0)
 
     def test_old_observed_split_schema_is_rejected(self):
         data = SimpleNamespace(
