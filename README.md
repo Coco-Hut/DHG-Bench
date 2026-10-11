@@ -20,6 +20,21 @@
 
 DHG-Bench is an open and unified pipline for Deep Hypergraph Learning (DHGL) based on [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://www.pyg.org/). We embark on **17** state-of-the-art hypergraph neural network (HNN) algorithms in node-level, edge-level, and graph-level tasks and analyze their performance in **22** distinct hypergraph datasets.
 
+## <span id="citation">📖 How to Cite</span>
+
+If you are interested or inspired by this work, you can cite us by:
+
+```bibtex
+@inproceedings{li2026dhg,
+  title={DHG-bench: A comprehensive benchmark for deep hypergraph learning},
+  author={Li, Fan and Wang, Xiaoyang and Zhang, Wenjie and Zhang, Ying and Lin, Xuemin},
+  booktitle={International Conference on Learning Representations},
+  volume={2026},
+  pages={47693--47727},
+  year={2026}
+}
+```
+
 ## <span id="overview-of-the-benchmark">📔 Overview of the Benchmark</span>
 
 <div align="center">
@@ -155,16 +170,3 @@ Note that The **is_default** parameter indicates whether to use the model’s de
 |16|HyperGT|[Hypergraph Transformer for Semi-Supervised Classification](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10446248)|ICASSP 2024|
 |17|TF-HNN |[Training-Free Message Passing for Learning on Hypergraphs](https://openreview.net/pdf?id=4AuyYxt7A2)| ICLR 2025|
 
-## <span id="citation">📖 Citation</span>
-The latest version of our paper has be released at: https://openreview.net/forum?id=lhsb1ChUDF
-
-If you use our benchmark in your works, we would appreciate citations to the paper:
-
-```bibtex
-@article{li2025dhg,
-  title={DHG-Bench: A Comprehensive Benchmark for Deep Hypergraph Learning},
-  author={Li, Fan and Wang, Xiaoyang and Zhang, Wenjie and Zhang, Ying and Lin, Xuemin},
-  journal={arXiv preprint arXiv:2508.12244},
-  year={2025}
-}
-```
